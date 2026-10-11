@@ -42,6 +42,19 @@ def search_hotels(
     accessibility: list[str] | None = None,
     limit: int = 5,
 ):
+    print("\n--- HOTEL SEARCH PARAMETERS ---")
+    print("Location:", location)
+    print("Check-in:", check_in)
+    print("Check-out:", check_out)
+    print("Adults:", adults)
+    print("Children:", children)
+    print("Children's ages:", children_ages)
+    print("Minimum price:", min_price)
+    print("Maximum price:", max_price)
+    print("Pets allowed:", pets_allowed)
+    print("Accessibility:", accessibility)
+    print("-------------------------------\n")
+
     if not hotels_api_key:
         raise ValueError("Hotels API key not set")
 
