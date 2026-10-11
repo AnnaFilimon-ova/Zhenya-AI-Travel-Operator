@@ -4,6 +4,7 @@ from google import genai
 
 load_dotenv()
 
+#Gemini
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 response = client.models.generate_content(
@@ -12,4 +13,3 @@ response = client.models.generate_content(
 )
 
 print(response.text)
-
