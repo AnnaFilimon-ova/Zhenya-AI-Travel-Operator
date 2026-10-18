@@ -1,6 +1,5 @@
 import os
 from locale import normalize
-
 from dotenv import load_dotenv
 import hashlib
 import time
@@ -160,6 +159,58 @@ def search_hotels(
     data["data"] = results
     return data
 
+def filter_hotels(
+    hotels: list[dict],
+    min_price: float | None = None,
+    max_price: float | None = None,
+    min_rating: float | None = None,
+    required_amenities: list[str] | None = None,
+    pets_allowed: bool | None = None,
+) -> list[dict]:
+    print("DEBUG: filter_hotels was called")
+
+    filtered_hotels = []
+
+    for hotel in hotels:
+        price = hotel.get("nightly_price")
+        rating = hotel.get("rating")
+        amenities = hotel.get("amenities") or []
+
+        if min_price is not None:
+            if price is None or price < min_price:
+                continue
+
+        if max_price is not None:
+            if price is None or price > max_price:
+                continue
+
+        if min_rating is not None:
+            if rating is None or rating < min_rating:
+                continue
+
+        if required_amenities:
+            normalized_amenities = {
+                item.lower() for item in amenities
+            }
+
+            if not all (
+                item.lower() in normalized_amenities
+                for item in required_amenities
+            ):
+                continue
+
+        if pets_allowed is True:
+            if hotel.get("pet_policy") is not True:
+                continue
+
+        if pets_allowed is False:
+            if hotel.get("pet_policy") is not False:
+                continue
+
+        filtered_hotels.append(hotel)
+
+    return filtered_hotels
+
 if __name__ == "__main__":
     result = search_hotels(
         location="New York",
@@ -176,3 +227,37 @@ if __name__ == "__main__":
     )
 
     print(result)
+
+def format_hotel_results(data):
+    hotels = []
+
+    for hotel in data.get("data", []):
+        price = hotel.get("price") or {}
+        location = hotel.get("location") or {}
+
+        hotels.append({
+            "name": hotel.get("name"),
+            "location": location.get("address")
+                        or location.get("city"),
+            "url": hotel.get("url"),
+            "nightly_price": price.get("nightlyPrice"),
+            "currency": price.get("currency"),
+            "total_price": price.get("totalPrice"),
+            "nights": price.get("nights"),
+            "max_occupancy": hotel.get("maxOccupancy"),
+            "rating": hotel.get("guestRating"),
+            "review_count": hotel.get("reviewCount"),
+            "amenities": hotel.get("amenities", []),
+            "pet_policy": hotel.get("pet_policy", "unknown"),
+            "accessibility": hotel.get(
+                "accessibility_status", {}
+            ),
+        })
+
+    return {
+        "hotels": hotels,
+        "sandbox": data.get("meta", {}).get("sandbox", False),
+        "warnings": data.get("meta", {}).get("warnings", []),
+        "unknown_details": data.get("unknown_details", []),
+    }
+
