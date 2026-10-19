@@ -6,7 +6,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.types import MenuButtonWebApp, WebAppInfo
 
-from app.bot.handlers import menu, start
+from app.bot.handlers import chat, menu, start
 from app.bot.middlewares import ThrottlingMiddleware
 from app.config import settings
 
@@ -22,6 +22,7 @@ async def main() -> None:
     dp.message.middleware(ThrottlingMiddleware(delay=5))
     dp.include_router(start.router)
     dp.include_router(menu.router)
+    dp.include_router(chat.router)
 
     await bot.delete_webhook(drop_pending_updates=True)
     await bot.set_chat_menu_button(

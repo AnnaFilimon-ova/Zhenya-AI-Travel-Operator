@@ -5,3 +5,5 @@ asyncpg>=0.29
 greenlet>=3.0
 fastapi>=0.115
 uvicorn>=0.30
+google-genai>=1.0
+requests>=2.31
