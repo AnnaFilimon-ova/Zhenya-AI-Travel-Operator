@@ -23,9 +23,19 @@
     const tg = window.Telegram.WebApp;
     tg.ready();
     tg.expand();
-    const user = tg.initDataUnsafe && tg.initDataUnsafe.user;
-    document.getElementById("hello").textContent =
-      user ? "Привет, " + user.first_name + "!" : "Открыто вне Telegram";
+
+    async function api(path) {
+      const res = await fetch(path, {
+        headers: { Authorization: "tma " + tg.initData },
+      });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    }
+
+    const hello = document.getElementById("hello");
+    api("/api/me")
+      .then((me) => { hello.textContent = "Привет, " + me.first_name + "! Сервер тебя узнал ✅"; })
+      .catch(() => { hello.textContent = "Открой приложение из Telegram."; });
   </script>
 </body>
 </html>
