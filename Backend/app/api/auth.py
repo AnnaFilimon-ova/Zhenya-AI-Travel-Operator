@@ -30,6 +30,11 @@ def validate_init_data(init_data: str) -> dict:
 
 
 async def current_user(authorization: str = Header(default="")) -> dict:
+    # Режим разработчика: только если DEV_USER_ID задан в .env
+    # и запрос пришёл без подписи Telegram (обычный браузер).
+    if settings.dev_user_id is not None and authorization.strip() in ("", "tma"):
+        return {"id": settings.dev_user_id, "first_name": "Dev"}
+
     if not authorization.startswith("tma "):
         raise HTTPException(status_code=401, detail="Unauthorized")
     try:

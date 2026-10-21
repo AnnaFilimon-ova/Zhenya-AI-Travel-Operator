@@ -2,40 +2,346 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Женя</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    body {
-      font-family: system-ui, sans-serif;
-      margin: 0;
-      padding: 24px;
-      background: var(--tg-theme-bg-color, #ffffff);
-      color: var(--tg-theme-text-color, #000000);
+    :root {
+      --bg: var(--tg-theme-bg-color, #f4fbfa);
+      --text: var(--tg-theme-text-color, #0f2a2e);
+      --hint: var(--tg-theme-hint-color, #5f7f84);
+      --card: var(--tg-theme-secondary-bg-color, #e3f3f1);
+      --accent: #0d9488;
+      --hero-from: #14b8a6;
+      --hero-to: #0369a1;
     }
-    h1 { margin-top: 0; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding-bottom: 100px;
+    }
+    .hero {
+      background: linear-gradient(160deg, var(--hero-from) 0%, var(--hero-to) 100%);
+      color: #fff;
+      text-align: center;
+      padding: 24px 20px 28px;
+      border-radius: 0 0 32px 32px;
+      margin: -20px -16px 22px;
+    }
+    .hero img {
+      width: 200px;
+      max-width: 60%;
+      height: auto;
+      filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.3));
+    }
+    .hero h1 { margin: 10px 0 4px; font-size: 26px; }
+    .hero p { margin: 0; opacity: 0.92; }
+    .page { display: none; padding: 20px 16px; }
+    .page.active { display: block; }
+    h2 { margin: 0 0 14px; font-size: 20px; }
+    h3 { margin: 18px 0 8px; font-size: 15px; color: var(--hint); font-weight: 600; }
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+    .item { display: flex; gap: 14px; align-items: center; }
+    .item .icon { font-size: 28px; }
+    .item b { display: block; }
+    .item small { color: var(--hint); }
+    .badge {
+      margin-left: auto;
+      font-size: 12px;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      border-radius: 10px;
+      padding: 2px 8px;
+      white-space: nowrap;
+    }
+    .soon { color: var(--hint); }
+
+    .field { display: block; margin-bottom: 12px; }
+    .field span { display: block; font-size: 13px; color: var(--hint); margin-bottom: 4px; }
+    input[type="text"], select, textarea {
+      width: 100%;
+      font: inherit;
+      font-size: 16px;
+      color: var(--text);
+      background: var(--bg);
+      border: 1px solid rgba(128, 128, 128, 0.35);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+    textarea { min-height: 80px; resize: vertical; }
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+    }
+    .row small { display: block; color: var(--hint); }
+    input[type="checkbox"] { width: 22px; height: 22px; accent-color: var(--accent); }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      border: 1px solid rgba(128, 128, 128, 0.4);
+      background: var(--bg);
+      color: var(--text);
+      border-radius: 18px;
+      padding: 8px 12px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .chip.on {
+      color: #fff;
+      border-color: transparent;
+      background: linear-gradient(160deg, var(--hero-from), var(--hero-to));
+    }
+    .save {
+      width: 100%;
+      margin-top: 18px;
+      border: none;
+      border-radius: 14px;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      background: linear-gradient(160deg, var(--hero-from), var(--hero-to));
+    }
+    .save:disabled { opacity: 0.6; }
+    #status { text-align: center; margin-top: 10px; min-height: 20px; color: var(--hint); }
+
+    nav {
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+      display: flex;
+      background: var(--card);
+      border-radius: 28px;
+      padding: 6px;
+      box-shadow: 0 4px 20px rgba(3, 105, 161, 0.25);
+    }
+    nav button {
+      flex: 1;
+      border: none;
+      background: none;
+      color: var(--hint);
+      font-size: 11px;
+      padding: 8px 0;
+      border-radius: 22px;
+      cursor: pointer;
+    }
+    nav button .ico { display: block; font-size: 22px; margin-bottom: 2px; }
+    nav button.active {
+      color: #fff;
+      background: linear-gradient(160deg, var(--hero-from), var(--hero-to));
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
-  <h1>Женя ✈️</h1>
-  <p id="hello">Загрузка...</p>
+
+  <section class="page active" id="page-home">
+    <div class="hero">
+      <img src="/static/zhenya.webp" alt="Женя">
+      <h1 id="greeting">Привет!</h1>
+      <p>Я Женя, твой AI-оператор путешествий</p>
+    </div>
+
+    <h2>Что я умею</h2>
+    <div class="card item"><span class="icon">🧳</span><div><b>Подбор отпуска</b><small>Расскажи, куда хочешь, а я составлю план</small></div></div>
+    <div class="card item"><span class="icon">🏨</span><div><b>Отели и жильё</b><small>Поиск с учётом бюджета и твоих условий</small></div></div>
+    <div class="card item"><span class="icon">🐾</span><div><b>Учёт предпочтений</b><small>Заполни профиль, и я буду это помнить</small></div></div>
+    <div class="card item"><span class="icon">📍</span><div><b>Места рядом</b><small>Рестораны и достопримечательности с оценками</small></div><span class="badge">скоро</span></div>
+    <div class="card item"><span class="icon">🎭</span><div><b>События и афиши</b><small>Что происходит рядом с тобой</small></div><span class="badge">скоро</span></div>
+    <div class="card item"><span class="icon">🗺️</span><div><b>Маршруты</b><small>Прокладка пути между местами</small></div><span class="badge">скоро</span></div>
+  </section>
+
+  <section class="page" id="page-settings">
+    <h2>Настройки бота</h2>
+    <div class="card soon">🌐 Язык ответов</div>
+    <div class="card soon">🙋 Как Женя к тебе обращается</div>
+    <div class="card soon">🎨 Цветовая тема</div>
+  </section>
+
+  <section class="page" id="page-profile">
+    <h2>Профиль</h2>
+    <p class="soon" style="margin-top:-6px">Женя запомнит это и будет учитывать при подборе поездок.</p>
+
+    <div class="card">
+      <label class="field"><span>Как к тебе обращаться</span>
+        <input type="text" id="display_name" maxlength="50" placeholder="Имя">
+      </label>
+      <label class="field"><span>Пол</span>
+        <select id="gender">
+          <option value="">Не указывать</option>
+          <option value="female">Женский</option>
+          <option value="male">Мужской</option>
+          <option value="other">Другое</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="card">
+      <label class="row"><div>Еду с животными<small>Искать варианты, где можно с питомцами</small></div>
+        <input type="checkbox" id="with_pets"></label>
+      <label class="row"><div>Нужна доступная среда<small>Учитывать доступность для маломобильных гостей</small></div>
+        <input type="checkbox" id="accessible"></label>
+    </div>
+
+    <h3>Вид путешествий</h3>
+    <div class="chips" id="travel_types"></div>
+
+    <h3>Вкусовые предпочтения</h3>
+    <div class="chips" id="food_prefs"></div>
+
+    <h3>Любимые места</h3>
+    <textarea id="favorite_places" maxlength="500" placeholder="Например: Лиссабон, Тбилиси, горы Алтая, маленькие кофейни"></textarea>
+
+    <button class="save" id="save">Сохранить</button>
+    <div id="status"></div>
+  </section>
+
+  <section class="page" id="page-nearby">
+    <h2>Рядом</h2>
+    <div class="card soon">📍 Места рядом</div>
+    <div class="card soon">🎭 События рядом</div>
+    <div class="card soon">🗺️ Маршруты</div>
+  </section>
+
+  <nav>
+    <button class="active" data-page="home"><span class="ico">🏠</span>Главная</button>
+    <button data-page="settings"><span class="ico">⚙️</span>Настройки</button>
+    <button data-page="profile"><span class="ico">👤</span>Профиль</button>
+    <button data-page="nearby"><span class="ico">📍</span>Рядом</button>
+  </nav>
+
   <script>
     const tg = window.Telegram.WebApp;
     tg.ready();
     tg.expand();
+    try { tg.setHeaderColor("#0d9488"); } catch (e) {}
 
-    async function api(path) {
-      const res = await fetch(path, {
-        headers: { Authorization: "tma " + tg.initData },
+    const TRAVEL_TYPES = [
+      ["beach", "🏖️ Пляж"], ["city", "🏙️ Города"], ["nature", "🌲 Природа и походы"],
+      ["culture", "🏛️ Культура и музеи"], ["active", "🚴 Активный отдых"],
+      ["relax", "🧘 Спокойный отдых"], ["gastro", "🍷 Гастротуры"], ["nightlife", "🎉 Ночная жизнь"],
+    ];
+    const FOOD_PREFS = [
+      ["vegetarian", "🥗 Вегетарианское"], ["vegan", "🌱 Веганское"], ["halal", "Халяль"],
+      ["kosher", "Кошер"], ["gluten_free", "Без глютена"], ["lactose_free", "Без лактозы"],
+      ["no_alcohol", "Без алкоголя"], ["nut_allergy", "Аллергия на орехи"],
+      ["spicy", "🌶️ Люблю острое"], ["seafood", "🦐 Морепродукты"],
+    ];
+
+    function api(path, options = {}) {
+      return fetch(path, {
+        ...options,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "tma " + tg.initData,
+        },
+      }).then((res) => {
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return res.json();
       });
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      return res.json();
     }
 
-    const hello = document.getElementById("hello");
-    api("/api/me")
-      .then((me) => { hello.textContent = "Привет, " + me.first_name + "! Сервер тебя узнал ✅"; })
-      .catch(() => { hello.textContent = "Открой приложение из Telegram."; });
+    function renderChips(containerId, options) {
+      const box = document.getElementById(containerId);
+      box.innerHTML = "";
+      options.forEach(([key, label]) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "chip";
+        btn.dataset.key = key;
+        btn.textContent = label;
+        btn.addEventListener("click", () => btn.classList.toggle("on"));
+        box.appendChild(btn);
+      });
+    }
+
+    function selectedChips(containerId) {
+      return Array.from(document.querySelectorAll("#" + containerId + " .chip.on"))
+        .map((b) => b.dataset.key);
+    }
+
+    function setChips(containerId, keys) {
+      document.querySelectorAll("#" + containerId + " .chip").forEach((b) => {
+        b.classList.toggle("on", keys.includes(b.dataset.key));
+      });
+    }
+
+    renderChips("travel_types", TRAVEL_TYPES);
+    renderChips("food_prefs", FOOD_PREFS);
+
+    document.querySelectorAll("nav button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("nav button").forEach((b) => b.classList.remove("active"));
+        document.querySelectorAll(".page").forEach((p) => p.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById("page-" + btn.dataset.page).classList.add("active");
+        window.scrollTo(0, 0);
+      });
+    });
+
+    const status = document.getElementById("status");
+    const saveBtn = document.getElementById("save");
+
+    async function loadProfile() {
+      try {
+        const p = await api("/api/profile");
+        document.getElementById("greeting").textContent =
+          "Привет" + (p.display_name ? ", " + p.display_name : "") + "!";
+        document.getElementById("display_name").value = p.display_name;
+        document.getElementById("gender").value = p.gender;
+        document.getElementById("with_pets").checked = p.with_pets;
+        document.getElementById("accessible").checked = p.accessible;
+        document.getElementById("favorite_places").value = p.favorite_places;
+        setChips("travel_types", p.travel_types);
+        setChips("food_prefs", p.food_prefs);
+      } catch (e) {
+        const unsafe = tg.initDataUnsafe && tg.initDataUnsafe.user;
+        if (unsafe && unsafe.first_name) {
+          document.getElementById("greeting").textContent = "Привет, " + unsafe.first_name + "!";
+        }
+        status.textContent = "Открой приложение из Telegram, чтобы сохранять профиль.";
+      }
+    }
+
+    saveBtn.addEventListener("click", async () => {
+      saveBtn.disabled = true;
+      status.textContent = "Сохраняю...";
+      try {
+        await api("/api/profile", {
+          method: "PUT",
+          body: JSON.stringify({
+            display_name: document.getElementById("display_name").value,
+            gender: document.getElementById("gender").value,
+            with_pets: document.getElementById("with_pets").checked,
+            accessible: document.getElementById("accessible").checked,
+            travel_types: selectedChips("travel_types"),
+            food_prefs: selectedChips("food_prefs"),
+            favorite_places: document.getElementById("favorite_places").value,
+          }),
+        });
+        status.textContent = "Сохранено ✅ Женя запомнила";
+        const name = document.getElementById("display_name").value.trim();
+        document.getElementById("greeting").textContent = "Привет" + (name ? ", " + name : "") + "!";
+      } catch (e) {
+        status.textContent = "Не удалось сохранить. Попробуй ещё раз.";
+      } finally {
+        saveBtn.disabled = false;
+      }
+    });
+
+    loadProfile();
   </script>
 </body>
 </html>
