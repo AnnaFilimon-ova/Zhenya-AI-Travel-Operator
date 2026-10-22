@@ -1,0 +1,281 @@
+/* Компоненты: шапка, карточки, формы, чипсы, навигация. */
+
+/* ---------- Шапка ---------- */
+.hero {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--hero-from) 0%, var(--hero-to) 100%);
+  color: var(--hero-text);
+  text-align: center;
+  padding: 30px 20px 26px;
+  border-radius: 0 0 30px 30px;
+  margin: 0 -16px 22px;
+  box-shadow: 0 12px 32px var(--shadow);
+}
+.hero::before,
+.hero::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: .55;
+}
+.hero::before { width: 150px; height: 150px; background: var(--blob-green); top: -72px; left: -42px; }
+.hero::after { width: 120px; height: 120px; background: var(--blob-pink); right: -38px; bottom: -48px; }
+.hero > * { position: relative; z-index: 1; }
+.hero img {
+  width: 174px;
+  max-width: 58%;
+  height: auto;
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, .16));
+}
+.hero h1 { margin: 12px 0 6px; font-size: 27px; letter-spacing: -.6px; }
+.hero p { margin: 0; color: var(--hero-sub); font-size: 14px; line-height: 1.5; }
+.hero-btn {
+  margin-top: 16px;
+  border: 1px solid var(--chip-on-border);
+  background: var(--chip-bg);
+  color: var(--chip-on-text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: 22px;
+  cursor: pointer;
+}
+.hero-btn:active { transform: scale(.97); }
+
+/* ---------- Карточки ---------- */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 19px;
+  padding: 15px 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 5px 18px var(--shadow);
+}
+.card.soon-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+
+.note {
+  background: var(--icon-green);
+  color: var(--chip-on-text);
+  border-radius: 16px;
+  padding: 12px 14px;
+  margin: -6px 0 18px;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--red-deep);
+  background: var(--badge-bg);
+  border: 1px solid var(--badge-border);
+  border-radius: 20px;
+  padding: 4px 9px;
+  white-space: nowrap;
+}
+
+.section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin: 6px 0 12px; }
+.section-head h2 { margin: 0; }
+
+/* ---------- «Для тебя»: горизонтальная лента ---------- */
+.scroller {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  margin: 0 -16px 24px;
+  padding: 2px 16px 10px;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+.scroller::-webkit-scrollbar { display: none; }
+
+.idea {
+  flex: 0 0 188px;
+  scroll-snap-align: start;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  padding: 14px;
+  box-shadow: 0 5px 18px var(--shadow);
+}
+.idea .icon {
+  display: grid; place-items: center;
+  width: 44px; height: 44px;
+  border-radius: 15px;
+  font-size: 23px;
+  background: var(--icon-green);
+  margin-bottom: 10px;
+}
+.idea:nth-child(even) .icon { background: var(--icon-pink); }
+.idea b { display: block; font-size: 14px; margin-bottom: 5px; }
+.idea small { display: block; color: var(--hint); font-size: 12px; line-height: 1.45; }
+.idea.empty { flex-basis: 100%; }
+.idea.empty button {
+  margin-top: 10px;
+  border: none;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--chip-on-text);
+  background: var(--chip-on-bg);
+  border-radius: 14px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+/* ---------- «Что умею»: сетка ---------- */
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.tile {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 14px;
+  box-shadow: 0 5px 18px var(--shadow);
+}
+.tile .icon {
+  display: grid; place-items: center;
+  width: 40px; height: 40px;
+  border-radius: 14px;
+  font-size: 21px;
+  background: var(--icon-green);
+  margin-bottom: 9px;
+}
+.tile:nth-child(even) .icon { background: var(--icon-pink); }
+.tile b { display: block; font-size: 13px; margin-bottom: 4px; }
+.tile small { display: block; color: var(--hint); font-size: 11px; line-height: 1.4; }
+.tile.is-soon { opacity: .8; }
+.tile .badge { position: absolute; top: 10px; right: 10px; font-size: 9px; padding: 3px 7px; }
+
+/* ---------- Формы ---------- */
+.field { display: block; margin-bottom: 14px; }
+.field:last-child { margin-bottom: 0; }
+.field span { display: block; font-size: 12px; font-weight: 650; color: var(--label); margin-bottom: 7px; }
+
+input[type="text"], select, textarea {
+  width: 100%;
+  font: inherit;
+  font-size: 15px;
+  color: var(--text);
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 13px;
+  padding: 12px 13px;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+input[type="text"]:focus, select:focus, textarea:focus {
+  border-color: var(--focus);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+textarea { min-height: 96px; resize: vertical; line-height: 1.5; }
+textarea::placeholder, input::placeholder { color: var(--hint); opacity: .7; }
+
+.row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 0; }
+.row + .row { border-top: 1px solid var(--divider); }
+.row div { font-size: 14px; font-weight: 600; }
+.row small { display: block; color: var(--hint); font-size: 11px; font-weight: 400; line-height: 1.45; margin-top: 4px; }
+input[type="checkbox"] { width: 21px; height: 21px; flex: 0 0 auto; accent-color: var(--green-deep); }
+
+/* ---------- Чипсы ---------- */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  border: 1px solid var(--chip-border);
+  background: var(--chip-bg);
+  color: var(--chip-text);
+  border-radius: 22px;
+  padding: 9px 12px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all .18s ease;
+}
+.chip:active { transform: scale(.97); }
+.chip.on {
+  color: var(--chip-on-text);
+  border-color: var(--chip-on-border);
+  background: var(--chip-on-bg);
+}
+
+/* ---------- Кнопки и статус ---------- */
+.save {
+  width: 100%;
+  margin-top: 22px;
+  border: none;
+  border-radius: 15px;
+  padding: 15px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 750;
+  color: #fff;
+  cursor: pointer;
+  background: linear-gradient(110deg, var(--btn-from), var(--btn-to));
+  box-shadow: 0 8px 18px var(--btn-shadow);
+  transition: transform .15s, opacity .15s;
+}
+.save:active { transform: translateY(1px); }
+.save:disabled { opacity: .6; box-shadow: none; }
+#status { text-align: center; margin-top: 12px; min-height: 20px; color: var(--green-deep); font-size: 13px; }
+
+/* ---------- Переключатель темы ---------- */
+.segmented {
+  display: flex;
+  gap: 4px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 4px;
+  margin-bottom: 18px;
+}
+.segmented button {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--nav-off);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 650;
+  padding: 10px 4px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.segmented button.active { background: var(--nav-on-bg); color: var(--nav-on-text); }
+
+/* ---------- Нижняя навигация ---------- */
+nav {
+  position: fixed;
+  z-index: 10;
+  left: 12px;
+  right: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  background: var(--nav-bg);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--nav-border);
+  border-radius: 25px;
+  padding: 6px;
+  box-shadow: 0 8px 28px var(--shadow-nav);
+}
+nav button {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--nav-off);
+  font: inherit;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 8px 2px;
+  border-radius: 19px;
+  cursor: pointer;
+  transition: all .2s ease;
+}
+nav button .ico { display: block; font-size: 20px; margin-bottom: 4px; }
+nav button.active { color: var(--nav-on-text); background: var(--nav-on-bg); font-weight: 750; }
+
+@media (min-width: 560px) {
+  nav { max-width: 536px; left: 50%; right: auto; width: calc(100% - 24px); transform: translateX(-50%); }
+}

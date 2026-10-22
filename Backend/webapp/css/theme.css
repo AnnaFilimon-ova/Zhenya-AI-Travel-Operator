@@ -1,0 +1,112 @@
+/* Цвета. Светлая тема по умолчанию, тёмная включается атрибутом data-theme="dark" на <html>. */
+:root {
+  --bg: #fffaf8;
+  --text: #34453b;
+  --hint: #7d8b80;
+  --card: rgba(255, 255, 255, .88);
+  --border: #edf1eb;
+  --shadow: rgba(73, 100, 79, .045);
+  --shadow-nav: rgba(75, 103, 81, .14);
+  --bg-glow-1: rgba(223, 241, 228, .65);
+  --bg-glow-2: rgba(248, 223, 223, .5);
+
+  --accent: #83b89a;
+  --green-deep: #4f8b68;
+  --red-deep: #c8757b;
+  --title-soft: #587561;
+  --label: #718477;
+  --divider: #f0f2ee;
+
+  --icon-green: #e5f3e8;
+  --icon-pink: #fbe8e6;
+
+  --hero-from: #e1f2e5;
+  --hero-to: #f8e5e3;
+  --hero-text: #35483b;
+  --hero-sub: #65796a;
+  --blob-green: #c8e8d1;
+  --blob-pink: #f3caca;
+
+  --input-bg: #fffdfc;
+  --input-border: #e4ebe3;
+  --focus: #9bc9a8;
+  --focus-ring: rgba(155, 201, 168, .2);
+
+  --chip-bg: rgba(255, 255, 255, .8);
+  --chip-border: #e4eae2;
+  --chip-text: #647569;
+  --chip-on-bg: #e3f3e7;
+  --chip-on-border: #b8ddc1;
+  --chip-on-text: #3d6e4d;
+
+  --badge-bg: #fff0ef;
+  --badge-border: #f5d8d6;
+
+  --nav-bg: rgba(255, 255, 255, .94);
+  --nav-border: rgba(229, 237, 228, .95);
+  --nav-on-bg: #e4f3e7;
+  --nav-on-text: #477b56;
+  --nav-off: #87958a;
+
+  --btn-from: #77ad89;
+  --btn-to: #91c6a0;
+  --btn-shadow: rgba(103, 163, 121, .22);
+
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --bg: #0f1713;
+  --text: #e5eee7;
+  --hint: #8ea296;
+  --card: rgba(27, 39, 33, .9);
+  --border: #27372e;
+  --shadow: rgba(0, 0, 0, .25);
+  --shadow-nav: rgba(0, 0, 0, .45);
+  --bg-glow-1: rgba(44, 79, 58, .45);
+  --bg-glow-2: rgba(90, 58, 63, .3);
+
+  --accent: #7fc29a;
+  --green-deep: #8fd0a8;
+  --red-deep: #e29aa0;
+  --title-soft: #a5c9b0;
+  --label: #9bb0a1;
+  --divider: #26352c;
+
+  --icon-green: #223a2d;
+  --icon-pink: #3a2629;
+
+  --hero-from: #1d3328;
+  --hero-to: #3b2a2e;
+  --hero-text: #e8f2ea;
+  --hero-sub: #a9bfae;
+  --blob-green: #2c4f3a;
+  --blob-pink: #5a3a3f;
+
+  --input-bg: #16211b;
+  --input-border: #2e4237;
+  --focus: #5f9c78;
+  --focus-ring: rgba(95, 156, 120, .25);
+
+  --chip-bg: rgba(27, 39, 33, .8);
+  --chip-border: #2e4237;
+  --chip-text: #a9bfae;
+  --chip-on-bg: #25473a;
+  --chip-on-border: #3f7a5b;
+  --chip-on-text: #b8ecc9;
+
+  --badge-bg: #3a2629;
+  --badge-border: #58383c;
+
+  --nav-bg: rgba(22, 33, 27, .94);
+  --nav-border: #2a3b31;
+  --nav-on-bg: #25473a;
+  --nav-on-text: #b8ecc9;
+  --nav-off: #8ea296;
+
+  --btn-from: #4f8b68;
+  --btn-to: #6aa883;
+  --btn-shadow: rgba(0, 0, 0, .35);
+
+  color-scheme: dark;
+}

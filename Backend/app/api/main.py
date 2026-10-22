@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Literal
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -14,22 +14,38 @@ from app.models import User, UserPreferences
 
 WEBAPP_DIR = Path(__file__).resolve().parents[2] / "webapp"
 
-TRAVEL_TYPES = {"beach", "city", "nature", "culture", "active", "relax", "gastro", "nightlife"}
+# Ключи должны совпадать с webapp/js/constants.js
+TRAVEL_TYPES = {
+    "beach", "city", "nature", "culture", "active", "relax",
+    "gastro", "nightlife", "urbex", "aesthetic", "music", "shopping",
+}
 FOOD_PREFS = {
     "vegetarian", "vegan", "halal", "kosher", "gluten_free",
-    "lactose_free", "no_alcohol", "nut_allergy", "spicy", "seafood",
+    "lactose_free", "no_alcohol", "spicy", "seafood",
 }
 
 app = FastAPI(title="Zhenya API")
 
 
+@app.middleware("http")
+async def revalidate_webapp(request: Request, call_next):
+    """Страница и её файлы всегда сверяются с сервером, чтобы не залипал старый интерфейс."""
+    response = await call_next(request)
+    if request.url.path == "/" or request.url.path.startswith("/static"):
+        response.headers["Cache-Control"] = "no-cache"
+    return response
+
+
 class ProfileIn(BaseModel):
     display_name: str = Field(default="", max_length=50)
     gender: Literal["", "female", "male", "other"] = ""
+    occupation: Literal[
+        "", "schoolchild", "student", "working", "freelancer", "entrepreneur", "retired", "other"
+    ] = ""
     with_pets: bool = False
     accessible: bool = False
-    travel_types: list[str] = Field(default_factory=list, max_length=10)
-    food_prefs: list[str] = Field(default_factory=list, max_length=12)
+    travel_types: list[str] = Field(default_factory=list, max_length=20)
+    food_prefs: list[str] = Field(default_factory=list, max_length=20)
     favorite_places: str = Field(default="", max_length=500)
 
 
@@ -66,6 +82,7 @@ async def get_profile(tg_user: dict = Depends(current_user)) -> dict:
         return {
             "display_name": user.display_name or user.first_name or "",
             "gender": user.gender or "",
+            "occupation": user.occupation or "",
             "with_pets": prefs.with_pets if prefs else False,
             "accessible": prefs.accessible if prefs else False,
             "travel_types": list(prefs.travel_types or []) if prefs else [],
@@ -86,6 +103,7 @@ async def save_profile(
         user = await get_or_create_user(session, tg_user)
         user.display_name = body.display_name.strip() or None
         user.gender = body.gender or None
+        user.occupation = body.occupation or None
 
         stmt = insert(UserPreferences).values(
             user_id=user.id,

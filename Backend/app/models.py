@@ -15,6 +15,7 @@ class User(Base):
     first_name: Mapped[str | None] = mapped_column(Text)
     display_name: Mapped[str | None] = mapped_column(Text)
     gender: Mapped[str | None] = mapped_column(Text)
+    occupation: Mapped[str | None] = mapped_column(Text)
     language: Mapped[str] = mapped_column(Text, default="ru")
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()

@@ -1,254 +1,72 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
   <title>Женя</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <style>
-    :root {
-      --bg: #fffaf8;
-      --text: #34453b;
-      --hint: #7d8b80;
-      --card: #ffffff;
-      --accent: #83b89a;
-      --green: #dff1e4;
-      --green-deep: #4f8b68;
-      --red: #f8dfdf;
-      --red-deep: #c8757b;
-      --hero-from: #d9efdf;
-      --hero-to: #f8dede;
-    }
-
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background:
-        radial-gradient(ellipse at top left, rgba(223, 241, 228, .65), transparent 42%),
-        radial-gradient(ellipse at top right, rgba(248, 223, 223, .5), transparent 38%),
-        var(--bg);
-      color: var(--text);
-      padding: 0 16px 112px;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    .hero {
-      position: relative;
-      overflow: hidden;
-      background: linear-gradient(135deg, #e1f2e5 0%, #f8e5e3 100%);
-      color: #35483b;
-      text-align: center;
-      padding: 30px 20px 28px;
-      border: 1px solid rgba(255,255,255,.8);
-      border-radius: 0 0 30px 30px;
-      margin: 0 -16px 28px;
-      box-shadow: 0 12px 32px rgba(91, 130, 103, .09);
-    }
-    .hero::before, .hero::after {
-      content: "";
-      position: absolute;
-      border-radius: 50%;
-      pointer-events: none;
-      opacity: .55;
-    }
-    .hero::before {
-      width: 150px; height: 150px;
-      background: #c8e8d1;
-      top: -72px; left: -42px;
-    }
-    .hero::after {
-      width: 120px; height: 120px;
-      background: #f3caca;
-      right: -38px; bottom: -48px;
-    }
-    .hero img {
-      position: relative;
-      z-index: 1;
-      width: 174px;
-      max-width: 58%;
-      height: auto;
-      filter: drop-shadow(0 10px 16px rgba(77, 104, 84, .16));
-    }
-    .hero h1 { position: relative; z-index: 1; margin: 12px 0 6px; font-size: 27px; letter-spacing: -.6px; }
-    .hero p { position: relative; z-index: 1; margin: 0; color: #65796a; font-size: 14px; line-height: 1.5; }
-
-    .page { display: none; padding: 0 0 20px; animation: appear .25s ease; }
-    .page.active { display: block; }
-    @keyframes appear { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-    h2 { margin: 0 0 16px; font-size: 21px; letter-spacing: -.4px; }
-    h3 { margin: 24px 0 11px; font-size: 15px; color: #587561; font-weight: 700; }
-    .card {
-      background: rgba(255,255,255,.88);
-      border: 1px solid #edf1eb;
-      border-radius: 19px;
-      padding: 15px 16px;
-      margin-bottom: 12px;
-      box-shadow: 0 5px 18px rgba(73, 100, 79, .045);
-    }
-    .item { display: flex; gap: 13px; align-items: center; }
-    .item .icon {
-      display: grid; place-items: center;
-      flex: 0 0 46px; width: 46px; height: 46px;
-      border-radius: 15px; font-size: 24px;
-      background: #e5f3e8;
-    }
-    .item:nth-of-type(even) .icon { background: #fbe8e6; }
-    .item b { display: block; margin-bottom: 4px; font-size: 14px; }
-    .item small { display: block; color: var(--hint); font-size: 12px; line-height: 1.45; }
-    .badge {
-      margin-left: auto;
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--red-deep);
-      background: #fff0ef;
-      border: 1px solid #f5d8d6;
-      border-radius: 20px;
-      padding: 5px 9px;
-      white-space: nowrap;
-    }
-    .soon { color: var(--hint); }
-
-    .field { display: block; margin-bottom: 14px; }
-    .field:last-child { margin-bottom: 0; }
-    .field span { display: block; font-size: 12px; font-weight: 650; color: #718477; margin-bottom: 7px; }
-    input[type="text"], select, textarea {
-      width: 100%;
-      font: inherit;
-      font-size: 15px;
-      color: var(--text);
-      background: #fffdfc;
-      border: 1px solid #e4ebe3;
-      border-radius: 13px;
-      padding: 12px 13px;
-      outline: none;
-      transition: border-color .2s, box-shadow .2s;
-    }
-    input[type="text"]:focus, select:focus, textarea:focus {
-      border-color: #9bc9a8;
-      box-shadow: 0 0 0 3px rgba(155, 201, 168, .2);
-    }
-    textarea { min-height: 96px; resize: vertical; line-height: 1.5; }
-    textarea::placeholder, input::placeholder { color: #a3aea5; }
-    .row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 9px 0;
-    }
-    .row + .row { border-top: 1px solid #f0f2ee; }
-    .row div { font-size: 14px; font-weight: 600; }
-    .row small { display: block; color: var(--hint); font-size: 11px; font-weight: 400; line-height: 1.45; margin-top: 4px; }
-    input[type="checkbox"] { width: 21px; height: 21px; flex: 0 0 auto; accent-color: var(--green-deep); }
-    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-    .chip {
-      border: 1px solid #e4eae2;
-      background: rgba(255,255,255,.8);
-      color: #647569;
-      border-radius: 22px;
-      padding: 9px 12px;
-      font: inherit;
-      font-size: 12px;
-      cursor: pointer;
-      transition: all .18s ease;
-    }
-    .chip:active { transform: scale(.97); }
-    .chip.on {
-      color: #3d6e4d;
-      border-color: #b8ddc1;
-      background: #e3f3e7;
-      box-shadow: 0 2px 8px rgba(88, 143, 103, .09);
-    }
-    .save {
-      width: 100%;
-      margin-top: 22px;
-      border: none;
-      border-radius: 15px;
-      padding: 15px;
-      font-size: 15px;
-      font-weight: 750;
-      color: #fff;
-      cursor: pointer;
-      background: linear-gradient(110deg, #77ad89, #91c6a0);
-      box-shadow: 0 8px 18px rgba(103, 163, 121, .22);
-      transition: transform .15s, opacity .15s;
-    }
-    .save:active { transform: translateY(1px); }
-    .save:disabled { opacity: 0.6; box-shadow: none; }
-    #status { text-align: center; margin-top: 12px; min-height: 20px; color: var(--green-deep); font-size: 13px; }
-
-    nav {
-      position: fixed;
-      z-index: 10;
-      left: 12px;
-      right: 12px;
-      bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-      display: flex;
-      background: rgba(255,255,255,.94);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border: 1px solid rgba(229, 237, 228, .95);
-      border-radius: 25px;
-      padding: 6px;
-      box-shadow: 0 8px 28px rgba(75, 103, 81, .14);
-    }
-    nav button {
-      flex: 1;
-      border: none;
-      background: transparent;
-      color: #87958a;
-      font: inherit;
-      font-size: 10px;
-      font-weight: 600;
-      padding: 8px 2px;
-      border-radius: 19px;
-      cursor: pointer;
-      transition: all .2s ease;
-    }
-    nav button .ico { display: block; font-size: 20px; margin-bottom: 4px; }
-    nav button.active {
-      color: #477b56;
-      background: #e4f3e7;
-      font-weight: 750;
-    }
-    @media (min-width: 560px) {
-      body { max-width: 560px; margin: 0 auto; }
-      .hero { border-radius: 0 0 32px 32px; }
-      nav { max-width: 536px; left: 50%; right: auto; width: calc(100% - 24px); transform: translateX(-50%); }
-    }
-  </style>
+  <script>
+    /* Ставим тему до отрисовки, чтобы не мигало. Полная логика темы в js/theme.js. */
+    (function () {
+      try {
+        var pref = localStorage.getItem("zhenya-theme") || "auto";
+        var tg = window.Telegram && window.Telegram.WebApp;
+        var system = tg && tg.initData
+          ? tg.colorScheme
+          : (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.dataset.theme = (pref === "auto" ? system : pref) === "dark" ? "dark" : "light";
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="/static/css/theme.css">
+  <link rel="stylesheet" href="/static/css/base.css">
+  <link rel="stylesheet" href="/static/css/components.css">
 </head>
 <body>
 
+  <!-- Главная -->
   <section class="page active" id="page-home">
     <div class="hero">
       <img src="/static/zhenya.webp" alt="Женя">
       <h1 id="greeting">Привет!</h1>
       <p>Я Женя, твой AI-оператор путешествий</p>
+      <button class="hero-btn" id="cta-chat" type="button">Спланировать поездку в чате</button>
     </div>
 
-    <h2>Что я умею</h2>
-    <div class="card item"><span class="icon">🧳</span><div><b>Подбор отпуска</b><small>Расскажи, куда хочешь, а я составлю план</small></div></div>
-    <div class="card item"><span class="icon">🏨</span><div><b>Отели и жильё</b><small>Поиск с учётом бюджета и твоих условий</small></div></div>
-    <div class="card item"><span class="icon">🐾</span><div><b>Учёт предпочтений</b><small>Заполни профиль, и я буду это помнить</small></div></div>
-    <div class="card item"><span class="icon">📍</span><div><b>Места рядом</b><small>Рестораны и достопримечательности с оценками</small></div><span class="badge">скоро</span></div>
-    <div class="card item"><span class="icon">🎭</span><div><b>События и афиши</b><small>Что происходит рядом с тобой</small></div><span class="badge">скоро</span></div>
-    <div class="card item"><span class="icon">🗺️</span><div><b>Маршруты</b><small>Прокладка пути между местами</small></div><span class="badge">скоро</span></div>
+    <div class="note" id="budget-note" hidden></div>
+
+    <div class="section-head">
+      <h2>Для тебя</h2>
+    </div>
+    <p class="hint" style="margin: -6px 0 12px;">Идеи по твоим интересам. Конкретные места появятся в разделе «Рядом».</p>
+    <div class="scroller" id="interest-list"></div>
+
+    <div class="section-head">
+      <h2>Что я умею</h2>
+    </div>
+    <div class="grid" id="features"></div>
   </section>
 
+  <!-- Настройки -->
   <section class="page" id="page-settings">
-    <h2>Настройки бота</h2>
-    <div class="card soon">🌐 Язык ответов</div>
-    <div class="card soon">🙋 Как Женя к тебе обращается</div>
-    <div class="card soon">🎨 Цветовая тема</div>
+    <h2>Настройки</h2>
+
+    <h3 style="margin-top: 0;">Тема</h3>
+    <div class="segmented" id="theme-switch">
+      <button type="button" data-theme-choice="auto">Как в Telegram</button>
+      <button type="button" data-theme-choice="light">Светлая</button>
+      <button type="button" data-theme-choice="dark">Тёмная</button>
+    </div>
+
+    <div class="card soon-row soon"><span>🌐 Язык ответов</span><span class="badge">скоро</span></div>
+    <div class="card soon-row soon"><span>🙋 Как Женя к тебе обращается</span><span class="badge">скоро</span></div>
   </section>
 
+  <!-- Профиль -->
   <section class="page" id="page-profile">
     <h2>Профиль</h2>
-    <p class="soon" style="margin-top:-6px">Женя запомнит это и будет учитывать при подборе поездок.</p>
+    <p class="hint" style="margin: -6px 0 14px;">Женя запомнит это и будет учитывать при подборе поездок.</p>
 
     <div class="card">
       <label class="field"><span>Как к тебе обращаться</span>
@@ -261,6 +79,9 @@
           <option value="male">Мужской</option>
           <option value="other">Другое</option>
         </select>
+      </label>
+      <label class="field"><span>Чем занимаешься</span>
+        <select id="occupation"></select>
       </label>
     </div>
 
@@ -280,144 +101,25 @@
     <h3>Любимые места</h3>
     <textarea id="favorite_places" maxlength="500" placeholder="Например: Лиссабон, Тбилиси, горы Алтая, маленькие кофейни"></textarea>
 
-    <button class="save" id="save">Сохранить</button>
+    <button class="save" id="save" type="button">Сохранить</button>
     <div id="status"></div>
   </section>
 
+  <!-- Рядом -->
   <section class="page" id="page-nearby">
     <h2>Рядом</h2>
-    <div class="card soon">📍 Места рядом</div>
-    <div class="card soon">🎭 События рядом</div>
-    <div class="card soon">🗺️ Маршруты</div>
+    <div class="card soon-row soon"><span>📍 Места рядом</span><span class="badge">скоро</span></div>
+    <div class="card soon-row soon"><span>🎭 События рядом</span><span class="badge">скоро</span></div>
+    <div class="card soon-row soon"><span>🗺️ Маршруты</span><span class="badge">скоро</span></div>
   </section>
 
   <nav>
-    <button class="active" data-page="home"><span class="ico">🏠</span>Главная</button>
-    <button data-page="settings"><span class="ico">⚙️</span>Настройки</button>
-    <button data-page="profile"><span class="ico">👤</span>Профиль</button>
-    <button data-page="nearby"><span class="ico">📍</span>Рядом</button>
+    <button class="active" data-page="home" type="button"><span class="ico">🏠</span>Главная</button>
+    <button data-page="settings" type="button"><span class="ico">⚙️</span>Настройки</button>
+    <button data-page="profile" type="button"><span class="ico">👤</span>Профиль</button>
+    <button data-page="nearby" type="button"><span class="ico">📍</span>Рядом</button>
   </nav>
 
-  <script>
-    const tg = window.Telegram.WebApp;
-    tg.ready();
-    tg.expand();
-    try { tg.setHeaderColor("#e1f2e5"); } catch (e) {}
-
-    const TRAVEL_TYPES = [
-      ["beach", "🏖️ Пляж"], ["city", "🏙️ Города"], ["nature", "🌲 Природа и походы"],
-      ["culture", "🏛️ Культура и музеи"], ["active", "🚴 Активный отдых"],
-      ["relax", "🧘 Спокойный отдых"], ["gastro", "🍷 Гастротуры"], ["nightlife", "🎉 Ночная жизнь"],
-    ];
-    const FOOD_PREFS = [
-      ["vegetarian", "🥗 Вегетарианское"], ["vegan", "🌱 Веганское"], ["halal", "Халяль"],
-      ["kosher", "Кошер"], ["gluten_free", "Без глютена"], ["lactose_free", "Без лактозы"],
-      ["no_alcohol", "Без алкоголя"], ["nut_allergy", "Аллергия на орехи"],
-      ["spicy", "🌶️ Люблю острое"], ["seafood", "🦐 Морепродукты"],
-    ];
-
-    function api(path, options = {}) {
-      return fetch(path, {
-        ...options,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "tma " + tg.initData,
-        },
-      }).then((res) => {
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        return res.json();
-      });
-    }
-
-    function renderChips(containerId, options) {
-      const box = document.getElementById(containerId);
-      box.innerHTML = "";
-      options.forEach(([key, label]) => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "chip";
-        btn.dataset.key = key;
-        btn.textContent = label;
-        btn.addEventListener("click", () => btn.classList.toggle("on"));
-        box.appendChild(btn);
-      });
-    }
-
-    function selectedChips(containerId) {
-      return Array.from(document.querySelectorAll("#" + containerId + " .chip.on"))
-        .map((b) => b.dataset.key);
-    }
-
-    function setChips(containerId, keys) {
-      document.querySelectorAll("#" + containerId + " .chip").forEach((b) => {
-        b.classList.toggle("on", keys.includes(b.dataset.key));
-      });
-    }
-
-    renderChips("travel_types", TRAVEL_TYPES);
-    renderChips("food_prefs", FOOD_PREFS);
-
-    document.querySelectorAll("nav button").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll("nav button").forEach((b) => b.classList.remove("active"));
-        document.querySelectorAll(".page").forEach((p) => p.classList.remove("active"));
-        btn.classList.add("active");
-        document.getElementById("page-" + btn.dataset.page).classList.add("active");
-        window.scrollTo(0, 0);
-      });
-    });
-
-    const status = document.getElementById("status");
-    const saveBtn = document.getElementById("save");
-
-    async function loadProfile() {
-      try {
-        const p = await api("/api/profile");
-        document.getElementById("greeting").textContent =
-          "Привет" + (p.display_name ? ", " + p.display_name : "") + "!";
-        document.getElementById("display_name").value = p.display_name;
-        document.getElementById("gender").value = p.gender;
-        document.getElementById("with_pets").checked = p.with_pets;
-        document.getElementById("accessible").checked = p.accessible;
-        document.getElementById("favorite_places").value = p.favorite_places;
-        setChips("travel_types", p.travel_types);
-        setChips("food_prefs", p.food_prefs);
-      } catch (e) {
-        const unsafe = tg.initDataUnsafe && tg.initDataUnsafe.user;
-        if (unsafe && unsafe.first_name) {
-          document.getElementById("greeting").textContent = "Привет, " + unsafe.first_name + "!";
-        }
-        status.textContent = "Открой приложение из Telegram, чтобы сохранять профиль.";
-      }
-    }
-
-    saveBtn.addEventListener("click", async () => {
-      saveBtn.disabled = true;
-      status.textContent = "Сохраняю...";
-      try {
-        await api("/api/profile", {
-          method: "PUT",
-          body: JSON.stringify({
-            display_name: document.getElementById("display_name").value,
-            gender: document.getElementById("gender").value,
-            with_pets: document.getElementById("with_pets").checked,
-            accessible: document.getElementById("accessible").checked,
-            travel_types: selectedChips("travel_types"),
-            food_prefs: selectedChips("food_prefs"),
-            favorite_places: document.getElementById("favorite_places").value,
-          }),
-        });
-        status.textContent = "Сохранено ✅ Женя запомнила";
-        const name = document.getElementById("display_name").value.trim();
-        document.getElementById("greeting").textContent = "Привет" + (name ? ", " + name : "") + "!";
-      } catch (e) {
-        status.textContent = "Не удалось сохранить. Попробуй ещё раз.";
-      } finally {
-        saveBtn.disabled = false;
-      }
-    });
-
-    loadProfile();
-  </script>
+  <script type="module" src="/static/js/main.js"></script>
 </body>
 </html>
