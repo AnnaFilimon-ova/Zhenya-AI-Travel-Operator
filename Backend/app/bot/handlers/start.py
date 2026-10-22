@@ -1,5 +1,5 @@
 import html
-
+from app.agent.service import welcome_back
 from aiogram import F, Router
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
@@ -69,7 +69,12 @@ async def cmd_start(message: Message, state: FSMContext) -> None:
 
     if display_name:
         await state.clear()
-        await message.answer(WELCOME_TEXT.format(name=html.escape(display_name)))
+        await message.bot.send_chat_action(message.chat.id, "typing")
+        text = await welcome_back(message.from_user.id)
+        if text:
+            await message.answer(text, parse_mode=None)
+        else:
+            await message.answer(WELCOME_TEXT.format(name=html.escape(display_name)))
         return
 
     first_name = message.from_user.first_name
