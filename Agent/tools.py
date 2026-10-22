@@ -1,10 +1,6 @@
 import os
-from locale import normalize
 from dotenv import load_dotenv
-import hashlib
-import time
 import requests
-from pip._internal.resolution.resolvelib import requirements
 
 load_dotenv()
 
