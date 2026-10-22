@@ -9,7 +9,6 @@ load_dotenv()
 #Gemini
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
-
 def search_hotels_for_agent(
     location: str,
     check_in: str,
@@ -75,7 +74,8 @@ def filter_hotels_for_agent(
 chat = client.chats.create(
     model="gemini-3.6-flash",
     config=types.GenerateContentConfig(
-        tools=[search_hotels_for_agent, filter_hotels_for_agent,],
+        tools=[search_hotels_for_agent, filter_hotels_for_agent,
+               types.Tool(google_search=types.GoogleSearch()),],
 
         tool_config=types.ToolConfig(
             function_calling_config=types.FunctionCallingConfig(
@@ -147,6 +147,22 @@ chat = client.chats.create(
           to filter.
         - If results are sandbox samples, identify them as samples, not live matches.
         - Never claim unknown details are confirmed.
+        
+        GOOGLE SEARCH RULES:
+        - Use Google Search for current travel information,
+          attractions, transportation, and official hotel policies.
+        - For structured hotel searches, use search_hotels_for_agent first.
+        - Use Google Search to supplement hotel information when needed.
+        - Never treat a web page as confirmation of live room availability.
+        - Never invent prices, ratings, or booking links.
+        - Distinguish information found online from data returned by StayingAPI.
+        - Always include the hotel's booking URL when a valid URL is
+          available in the returned hotel data.
+        - Display each hotel as a separate result with its name,
+          nightly price, rating, and clickable booking link.
+        - If no booking URL is available, do not invent one.
+        - If Google Search finds an official hotel page, include its
+          source link and label it as the official website when verified.
         """
     ),
 )
