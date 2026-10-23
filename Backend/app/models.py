@@ -15,6 +15,7 @@ class User(Base):
     first_name: Mapped[str | None] = mapped_column(Text)
     display_name: Mapped[str | None] = mapped_column(Text)
     gender: Mapped[str | None] = mapped_column(Text)
+    occupation: Mapped[str | None] = mapped_column(Text)
     language: Mapped[str] = mapped_column(Text, default="ru")
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
@@ -37,5 +38,17 @@ class UserPreferences(Base):
     )
     favorite_places: Mapped[str | None] = mapped_column(Text)
     updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    
+
+class ChatMessage(Base):
+    __tablename__ = "chat_messages"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    telegram_id: Mapped[int] = mapped_column(BigInteger, index=True)
+    role: Mapped[str] = mapped_column(Text)
+    text: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

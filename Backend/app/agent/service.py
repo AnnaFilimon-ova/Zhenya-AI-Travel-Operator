@@ -2,7 +2,7 @@ import asyncio
 import sys
 from datetime import date
 from pathlib import Path
-
+from app.memory import load_history  # noqa: E402
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
@@ -108,9 +108,24 @@ HOTEL SEARCH RULES:
 """.strip()
 
 
-def create_chat(profile: dict):
+def to_contents(history: list[dict]) -> list[types.Content]:
+    return [
+        types.Content(role=item["role"], parts=[types.Part(text=item["text"])])
+        for item in history
+    ]
+
+
+def to_contents(history: list[dict]) -> list[types.Content]:
+    return [
+        types.Content(role=item["role"], parts=[types.Part(text=item["text"])])
+        for item in history
+    ]
+
+
+def create_chat(profile: dict, history: list[types.Content] | None = None):
     return client.chats.create(
         model=MODEL,
+        history=history or [],
         config=types.GenerateContentConfig(
             tools=[search_hotels_for_agent, filter_hotels_for_agent],
             system_instruction=build_instruction(profile),
@@ -132,10 +147,54 @@ async def get_profile(telegram_id: int) -> dict:
     }
 
 
+_locks: dict[int, asyncio.Lock] = {}
+
+
+def forget_chat(telegram_id: int) -> None:
+    _chats.pop(telegram_id, None)
+
+
 async def ask(telegram_id: int, text: str) -> str:
-    chat = _chats.get(telegram_id)
-    if chat is None:
-        chat = create_chat(await get_profile(telegram_id))
-        _chats[telegram_id] = chat
-    response = await asyncio.to_thread(chat.send_message, text)
-    return response.text or "Не получилось сформулировать ответ, попробуй переписать запрос."
+    lock = _locks.setdefault(telegram_id, asyncio.Lock())
+    async with lock:
+        chat = _chats.get(telegram_id)
+        if chat is None:
+            profile = await get_profile(telegram_id)
+            history = await load_history(telegram_id)
+            chat = create_chat(profile, to_contents(history))
+            _chats[telegram_id] = chat
+        response = await asyncio.to_thread(chat.send_message, text)
+        return response.text or "Не получилось сформулировать ответ, попробуй переписать запрос."
+async def welcome_back(telegram_id: int) -> str | None:
+    history = await load_history(telegram_id, limit=10)
+    if not history:
+        return None
+
+    profile = await get_profile(telegram_id)
+    name = profile.get("name") or "the user"
+    dialog = "\n".join(
+        f"{'User' if item['role'] == 'user' else 'Zhenya'}: {item['text'][:300]}"
+        for item in history
+    )
+    prompt = f"""
+You are Zhenya, a friendly AI travel assistant in a Telegram bot.
+The user {name} just pressed /start again. Here is their recent conversation:
+
+{dialog}
+
+Write 1-2 short warm sentences in the language of the conversation:
+welcome them back, mention specifically what they were planning
+(destination, dates, guests, if known), and offer to continue.
+Add that they can send /reset to start over.
+Do not invent details that are not in the conversation.
+If the conversation contains no travel plans, just welcome them back warmly.
+Plain text, no markdown, at most one emoji.
+""".strip()
+
+    try:
+        response = await asyncio.to_thread(
+            client.models.generate_content, model=MODEL, contents=prompt
+        )
+    except Exception:
+        return None
+    return (response.text or "").strip() or None
