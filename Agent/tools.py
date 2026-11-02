@@ -4,7 +4,7 @@ import requests
 
 load_dotenv()
 
-hotels_api_key = os.getenv("HOTELS_API_KEY")
+avias_api_key = os.getenv("AVIAS_API_KEY")
 
 url = "https://api.stayingapi.com/v1/search"
 
