@@ -1,0 +1,55 @@
+# Запуск: cp .env.example .env && docker compose up --build
+# После запуска: http://localhost:8080
+
+x-app: &app
+  build:
+    context: .
+    dockerfile: Backend/Dockerfile
+  env_file: .env
+  environment:
+    DATABASE_URL: postgresql+asyncpg://postgres:${POSTGRES_PASSWORD:-zhenya}@db:5432/zhenya_db
+
+services:
+  db:
+    image: postgres:16-bookworm
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-zhenya}
+      POSTGRES_DB: zhenya_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Схема создаётся при первом запуске пустой базы
+      - ./Backend/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d zhenya_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  app:
+    <<: *app
+    command: uvicorn app.api.main:app --host 0.0.0.0 --port 8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    restart: unless-stopped
+
+  # Telegram-бот. Без BOT_TOKEN в .env тихо завершается, остальное работает.
+  bot:
+    <<: *app
+    command: python -m app.bot.main
+    depends_on:
+      app:
+        condition: service_healthy
+    restart: on-failure
+
+volumes:
+  pgdata:

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <title data-i18n="app.title">Женя</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+    /* Ставим тему до отрисовки, чтобы не мигало. Полная логика темы в js/theme.js. */
+    (function () {
+      try {
+        var pref = localStorage.getItem("zhenya-theme") || "auto";
+        var tg = window.Telegram && window.Telegram.WebApp;
+        var system = tg && tg.initData
+          ? tg.colorScheme
+          : (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.dataset.theme = (pref === "auto" ? system : pref) === "dark" ? "dark" : "light";
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="/static/css/theme.css">
+  <link rel="stylesheet" href="/static/css/base.css">
+  <link rel="stylesheet" href="/static/css/components.css">
+</head>
+<body>
+
+  <!-- Главная -->
+  <section class="page active" id="page-home">
+    <div class="hero">
+      <img src="/static/zhenya.webp" alt="Женя" data-i18n-alt="app.name">
+      <h1 id="greeting" data-i18n="home.hello">Привет!</h1>
+      <p data-i18n="home.tagline">Я Женя, твой AI-оператор путешествий</p>
+      <button class="hero-btn" id="cta-chat" type="button" data-i18n="home.cta">Спланировать поездку в чате</button>
+    </div>
+
+    <div class="note" id="budget-note" hidden></div>
+
+    <div class="section-head">
+      <h2 data-i18n="home.forYou">Для тебя</h2>
+    </div>
+    <p class="hint" style="margin: -6px 0 12px;" data-i18n="home.forYouHint">Идеи по твоим интересам. Конкретные места появятся в разделе «Рядом».</p>
+    <div class="scroller" id="interest-list"></div>
+
+    <div class="section-head">
+      <h2 data-i18n="home.features">Что я умею</h2>
+    </div>
+    <div class="grid" id="features"></div>
+  </section>
+
+  <!-- Настройки -->
+  <section class="page" id="page-settings">
+    <h2 data-i18n="settings.title">Настройки</h2>
+
+    <h3 style="margin-top: 0;" data-i18n="settings.theme">Тема</h3>
+    <div class="segmented" id="theme-switch">
+      <button type="button" data-theme-choice="auto" data-i18n="theme.auto">Как в Telegram</button>
+      <button type="button" data-theme-choice="light" data-i18n="theme.light">Светлая</button>
+      <button type="button" data-theme-choice="dark" data-i18n="theme.dark">Тёмная</button>
+    </div>
+
+    <h3 data-i18n="settings.language">Язык интерфейса</h3>
+    <div class="segmented" id="lang-switch">
+      <button type="button" data-lang-choice="auto" data-i18n="lang.auto">Авто</button>
+      <button type="button" data-lang-choice="ru" data-i18n="lang.ru">Русский</button>
+      <button type="button" data-lang-choice="en" data-i18n="lang.en">English</button>
+    </div>
+    <p class="hint" style="margin: 8px 0 0;" data-i18n="settings.languageHint">Женя отвечает на том языке, на котором ты ей пишешь.</p>
+
+    <h3 data-i18n="settings.persona">Пол Жени</h3>
+    <p class="hint" style="margin: -4px 0 12px;" data-i18n="settings.personaHint">Меняется только манера общения. Подбор мест и цены остаются теми же.</p>
+    <div class="persona" id="persona-root"></div>
+    <small class="cart-note" id="persona-status"></small>
+  </section>
+
+  <!-- Профиль -->
+  <section class="page" id="page-profile">
+    <h2 data-i18n="profile.title">Профиль</h2>
+    <p class="hint" style="margin: -6px 0 14px;" data-i18n="profile.hint">Женя запомнит это и будет учитывать при подборе поездок.</p>
+
+    <div class="card">
+      <label class="field"><span data-i18n="profile.name">Как к тебе обращаться</span>
+        <input type="text" id="display_name" maxlength="50" placeholder="Имя" data-i18n-placeholder="profile.namePlaceholder">
+      </label>
+      <label class="field"><span data-i18n="profile.gender">Пол</span>
+        <select id="gender">
+          <option value="" data-i18n="gender.none">Не указывать</option>
+          <option value="female" data-i18n="gender.female">Женский</option>
+          <option value="male" data-i18n="gender.male">Мужской</option>
+          <option value="other" data-i18n="gender.other">Другое</option>
+        </select>
+      </label>
+      <label class="field"><span data-i18n="profile.occupation">Чем занимаешься</span>
+        <select id="occupation"></select>
+      </label>
+    </div>
+
+    <div class="card">
+      <label class="row"><div><span data-i18n="profile.pets">Еду с животными</span><small data-i18n="profile.petsHint">Искать варианты, где можно с питомцами</small></div>
+        <input type="checkbox" id="with_pets"></label>
+      <label class="row"><div><span data-i18n="profile.accessible">Нужна доступная среда</span><small data-i18n="profile.accessibleHint">Учитывать доступность для маломобильных гостей</small></div>
+        <input type="checkbox" id="accessible"></label>
+    </div>
+
+    <h3 data-i18n="profile.travelTypes">Вид путешествий</h3>
+    <div class="chips" id="travel_types"></div>
+
+    <h3 data-i18n="profile.food">Вкусовые предпочтения</h3>
+    <div class="chips" id="food_prefs"></div>
+
+    <h3 data-i18n="profile.favorites">Любимые места</h3>
+    <textarea id="favorite_places" maxlength="500" placeholder="Например: Лиссабон, Тбилиси, горы Алтая, маленькие кофейни" data-i18n-placeholder="profile.favoritesPlaceholder"></textarea>
+
+    <button class="save" id="save" type="button" data-i18n="profile.save">Сохранить</button>
+    <div id="status"></div>
+  </section>
+
+  <!-- Рядом -->
+  <section class="page" id="page-nearby">
+    <h2 data-i18n="nearby.title">Рядом</h2>
+    <div class="card">
+      <button class="save" id="nearby-locate" type="button" data-i18n="nearby.locate">Определить, где я</button>
+      <label class="field" style="margin-top: 14px;"><span data-i18n="nearby.orCity">Или выбери город</span>
+        <select id="nearby-city">
+          <option value="" data-i18n="nearby.noCity">Не выбран</option>
+          <option value="Москва" data-i18n="city.Москва">Москва</option>
+          <option value="Санкт-Петербург" data-i18n="city.Санкт-Петербург">Санкт-Петербург</option>
+          <option value="Сочи" data-i18n="city.Сочи">Сочи</option>
+          <option value="Казань" data-i18n="city.Казань">Казань</option>
+          <option value="Калининград" data-i18n="city.Калининград">Калининград</option>
+          <option value="Екатеринбург" data-i18n="city.Екатеринбург">Екатеринбург</option>
+          <option value="Нижний Новгород" data-i18n="city.Нижний Новгород">Нижний Новгород</option>
+          <option value="Иркутск" data-i18n="city.Иркутск">Иркутск</option>
+          <option value="Кисловодск" data-i18n="city.Кисловодск">Кисловодск</option>
+          <option value="Рязань" data-i18n="city.Рязань">Рязань</option>
+        </select>
+      </label>
+      <small class="cart-note" id="nearby-status"></small>
+    </div>
+    <div class="chips" id="nearby-cats" style="margin-bottom: 10px;"></div>
+    <div class="chips" id="nearby-radius" style="margin-bottom: 14px;"></div>
+    <div id="nearby-root"></div>
+    <div class="card soon-row soon"><span class="with-ico"><svg class="svg-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" /> <path d="M13 5v2" /> <path d="M13 17v2" /> <path d="M13 11v2" /></svg><span data-i18n="nearby.events">События рядом</span></span><span class="badge" data-i18n="common.soon">скоро</span></div>
+    <div class="card soon-row soon"><span class="with-ico"><svg class="svg-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="19" r="3" /> <path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" /> <circle cx="18" cy="5" r="3" /></svg><span data-i18n="nearby.routes">Маршруты</span></span><span class="badge" data-i18n="common.soon">скоро</span></div>
+  </section>
+
+  <!-- Корзина -->
+  <section class="page" id="page-cart">
+    <h2 data-i18n="cart.title">Корзина</h2>
+    <p class="hint" style="margin: -6px 0 14px;" data-i18n="cart.hint">Места, которые ты выбрала в чате. Цены оценочные, оплата демонстрационная.</p>
+    <div id="cart-root"></div>
+  </section>
+
+  <nav>
+    <button class="active" data-page="home" type="button"><span class="ico"><svg class="svg-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" /> <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /></svg></span><span data-i18n="nav.home">Главная</span></button>
+    <button data-page="settings" type="button"><span class="ico"><svg class="svg-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" /> <circle cx="12" cy="12" r="3" /></svg></span><span data-i18n="nav.settings">Настройки</span></button>
+    <button data-page="profile" type="button"><span class="ico"><svg class="svg-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /> <circle cx="12" cy="7" r="4" /></svg></span><span data-i18n="nav.profile">Профиль</span></button>
+    <button data-page="nearby" type="button"><span class="ico"><svg class="svg-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0" /> <circle cx="12" cy="10" r="3" /></svg></span><span data-i18n="nav.nearby">Рядом</span></button>
+    <button data-page="cart" type="button"><span class="ico"><svg class="svg-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="21" r="1" /> <circle cx="19" cy="21" r="1" /> <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" /></svg><span class="nav-count" id="cart-count" hidden>0</span></span><span data-i18n="nav.cart">Корзина</span></button>
+  </nav>
+
+  <script type="module" src="/static/js/main.js"></script>
+  <script type="module" src="/static/js/select.js"></script>
+</body>
+</html>

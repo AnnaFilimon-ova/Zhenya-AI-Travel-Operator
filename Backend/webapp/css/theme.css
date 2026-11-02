@@ -1,0 +1,115 @@
+:root {
+  --bg: #bff59a;
+  --text: #0a35c4;
+  --hint: #3d5bc8;
+  --card: rgba(255, 255, 255, .92);
+  --border: rgba(13, 18, 38, .1);
+  --shadow: rgba(13, 18, 38, .08);
+  --shadow-nav: rgba(13, 18, 38, .18);
+  --bg-glow-1: rgba(255, 255, 255, .45);
+  --bg-glow-2: rgba(120, 160, 255, .22);
+
+  --accent: #0b3fdb;
+  --green-deep: #1f6313;
+  --red-deep: #c2334c;
+  --title-soft: #0b3fdb;
+  --label: #2f4fc0;
+  --divider: rgba(13, 18, 38, .09);
+
+  --icon-green: #e3f9d3;
+  --icon-pink: #e1e8ff; 
+
+  --hero-from: #f4ffe8;
+  --hero-to: #d9fbb8;
+  --hero-text: #0a35c4;
+  --hero-sub: #3d5bc8;
+  --blob-green: #aef080;
+  --blob-pink: #b9c9ff; 
+
+  --input-bg: #ffffff;
+  --input-border: #b9c6ee;
+  --focus: #0b3fdb;
+  --focus-ring: rgba(11, 63, 219, .18);
+
+  --chip-bg: rgba(255, 255, 255, .78);
+  --chip-border: rgba(13, 18, 38, .14);
+  --chip-text: #1f46c9;
+  --chip-on-bg: #0b3fdb;
+  --chip-on-border: #0b3fdb;
+  --chip-on-text: #ffffff;
+
+  --badge-bg: #e1e8ff;
+  --badge-border: #b9c6ee;
+
+  --nav-bg: rgba(255, 255, 255, .95);
+  --nav-border: rgba(13, 18, 38, .08);
+  --nav-on-bg: #0b3fdb;
+  --nav-on-text: #ffffff;
+  --nav-off: #4f6bd0;
+
+  --pop-bg: #ffffff;
+
+  --btn-from: #0b3fdb;
+  --btn-to: #2f63f5;
+  --btn-shadow: rgba(11, 63, 219, .3);
+
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --bg: #0a1030;
+  --text: #aef080;
+  --hint: #8ec86a;
+  --card: rgba(19, 29, 69, .92);
+  --border: #243066;
+  --shadow: rgba(0, 0, 0, .35);
+  --shadow-nav: rgba(0, 0, 0, .55);
+  --bg-glow-1: rgba(70, 110, 255, .28);
+  --bg-glow-2: rgba(174, 240, 128, .12);
+
+  --accent: #aef080;
+  --green-deep: #aef080;
+  --red-deep: #ff8da0;
+  --title-soft: #aef080;
+  --label: #9fd67c;
+  --divider: #212c5e;
+
+  --icon-green: #1c3a2a;
+  --icon-pink: #1d2a66;
+
+  --hero-from: #15215a;
+  --hero-to: #0f1a48;
+  --hero-text: #aef080;
+  --hero-sub: #9fd67c;
+  --blob-green: #3d6a2a;
+  --blob-pink: #2b45b8;
+
+  --input-bg: #0e1740;
+  --input-border: #2a3878;
+  --focus: #aef080;
+  --focus-ring: rgba(174, 240, 128, .22);
+
+  --chip-bg: rgba(19, 29, 69, .8);
+  --chip-border: #2a3878;
+  --chip-text: #9fd67c;
+  --chip-on-bg: #aef080;
+  --chip-on-border: #aef080;
+  --chip-on-text: #0a1030;
+
+  --badge-bg: #1d2a66;
+  --badge-border: #33448f;
+
+  --nav-bg: rgba(14, 23, 64, .95);
+  --nav-border: #243066;
+  --nav-on-bg: #aef080;
+  --nav-on-text: #0a1030;
+  --nav-off: #86b866;
+
+  --pop-bg: #16215a;
+
+  --btn-from: #3b63f0;
+  --btn-to: #5b82ff;
+  --btn-shadow: rgba(0, 0, 0, .4);
+
+  color-scheme: dark;
+}
