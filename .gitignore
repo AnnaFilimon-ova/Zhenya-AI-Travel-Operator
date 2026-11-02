@@ -1,7 +1,46 @@
-.idea/
+# Python
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environments
 .venv/
+venv/
+env/
+
+# Secrets
 .env
 .env.*
 !.env.example
-__pycache__/
 
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
+logs/
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Python tools
+.mypy_cache/
+.ruff_cache/
+.pyright/
+
+# Build
+build/
+dist/
+*.egg-info/
