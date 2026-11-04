@@ -1,61 +1,86 @@
 import os
-from dotenv import load_dotenv
+from typing import Any
 import requests
+from dotenv import load_dotenv
 
 load_dotenv()
 
-avias_api_key = os.getenv("AVIAS_API_KEY")
+AVIA_API_KEY = os.getenv("AVIA_API_KEY")
 
-url = "https://api.stayingapi.com/v1/search"
-
-print(
-    "StayingAPI key type:",
-    "LIVE" if (hotels_api_key or "").startswith("stay_live_")
-    else "TEST" if (hotels_api_key or "").startswith("stay_test_")
-    else "UNKNOWN"
+API_URL = (
+    "https://api.travelpayouts.com/"
+    "aviasales/v3/get_latest_prices"
 )
 
-def get_amenity_status(amenities, keywords):
-    normalized = {
-        str(item).lower().replace("_", " ")
-        for item in amenities
-    }
 
-    if any(
-        keyword.lower() in amenity
-        for amenity in normalized
-        for keyword in keywords
-    ):
-        return True
-
-    return None
-
-def search_hotels(
-    location: str,
-    check_in: str,
-    check_out: str,
-    adults: int = 2,
-    children: int = 0,
-    children_ages: list[int] | None = None,
+def filter_planes(
+    planes: list[dict[str, Any]],
     min_price: float | None = None,
     max_price: float | None = None,
-    currency: str = "EUR",
-    pets_allowed: bool = False,
-    accessibility: list[str] | None = None,
-    limit: int = 5,
-):
+) -> list[dict[str, Any]]:
+    """Filter flight offers by price."""
+    results = []
 
-    if not hotels_api_key:
-        raise ValueError("Hotels API key not set")
+    for plane in planes:
+        price = plane.get("value")
 
-    if not location.strip():
-        raise ValueError("Location not set")
+        if not isinstance(price, (int, float)):
+            continue
 
-    if adults < 1 or children < 0:
-        raise ValueError("Invalid number of adults or children")
+        if min_price is not None and price < min_price:
+            continue
 
-    if limit < 1:
-        raise ValueError("Limit must be at least 1")
+        if max_price is not None and price > max_price:
+            continue
+
+        results.append(plane)
+
+    return results
+
+
+def format_plane_results(
+    planes: list[dict[str, Any]],
+    currency: str = "RUB",
+) -> dict[str, list[dict[str, Any]]]:
+    """Convert API results into a consistent format."""
+    formatted_planes = []
+
+    for plane in planes:
+        formatted_planes.append({
+            "origin": plane.get("origin"),
+            "destination": plane.get("destination"),
+            "departure_date": plane.get("depart_date"),
+            "return_date": plane.get("return_date"),
+            "price": plane.get("value"),
+            "currency": currency.upper(),
+            "transfers": plane.get("number_of_changes"),
+            "found_at": plane.get("found_at"),
+            "actual": plane.get("actual"),
+            "trip_class": plane.get("trip_class"),
+        })
+
+    return {"planes": formatted_planes}
+
+
+def search_planes(
+    origin: str,
+    destination: str,
+    currency: str = "RUB",
+    min_price: float | None = None,
+    max_price: float | None = None,
+    period_type: str | None = None,
+    beginning_of_period: str | None = None,
+) -> dict[str, list[dict[str, Any]]]:
+    """Search cached flight prices using Travelpayouts."""
+
+    if not AVIA_API_KEY:
+        raise ValueError("No AVIA_API_KEY found in .env")
+
+    if not origin or not origin.strip():
+        raise ValueError("Origin is required")
+
+    if not destination or not destination.strip():
+        raise ValueError("Destination is required")
 
     if min_price is not None and min_price < 0:
         raise ValueError("Minimum price cannot be negative")
@@ -68,272 +93,92 @@ def search_hotels(
         and max_price is not None
         and min_price > max_price
     ):
-        raise ValueError("Minimum price cannot be greater than maximum price")
+        raise ValueError(
+            "Minimum price cannot be greater than maximum price"
+        )
 
-    children_ages = children_ages or []
-    accessibility = accessibility or []
+    if period_type not in (None, "day", "month", "year"):
+        raise ValueError("period_type must be day, month, year, or None")
 
-    if len(children_ages) != children:
-        raise ValueError("Provide an age for each child")
+    if period_type == "month" and not beginning_of_period:
+        raise ValueError(
+            "beginning_of_period is required for monthly searches"
+        )
 
     params = {
-        "location": location,
-        "check_in": check_in,
-        "check_out": check_out,
-        "platforms": "booking",
-        "limit": limit,
-        "currency": currency,
+        "origin": origin.strip().upper(),
+        "destination": destination.strip().upper(),
+        "currency": currency.lower(),
+        "token": AVIA_API_KEY,
+        "market": "ru",
+        "sorting": "price",
+        "page": 1,
+        "one_way": "true",
     }
 
-    headers = {
-        "Authorization": f"Bearer {hotels_api_key}",
-    }
+    if period_type:
+        params["period_type"] = period_type
+
+    if beginning_of_period:
+        params["beginning_of_period"] = beginning_of_period
 
     response = requests.get(
-        url,
-        headers=headers,
+        API_URL,
         params=params,
         timeout=30,
     )
-
-    print("API STATUS:", response.status_code)
-
     response.raise_for_status()
+
     data = response.json()
 
-    # Live-поиск может вернуть задачу вместо списка отелей
-    if response.status_code == 202:
-        job_id = data.get("data", {}).get("jobId")
-
-        if not job_id:
-            raise RuntimeError(
-                f"API вернул 202 без jobId: {data}"
-            )
-
-        job_url = f"https://api.stayingapi.com/v1/jobs/{job_id}"
-
-        import time
-
-        deadline = time.monotonic() + 300
-
-        while time.monotonic() < deadline:
-            time.sleep(5)
-
-            job_response = requests.get(
-                job_url,
-                headers=headers,
-                timeout=30,
-            )
-            job_response.raise_for_status()
-            job_data = job_response.json()
-            job = job_data.get("data", {})
-
-            status = job.get("status")
-            print("Search job status:", status)
-
-            if status == "completed":
-                result = job.get("result")
-
-                if not isinstance(result, list):
-                    raise RuntimeError(
-                        f"Неожиданный формат результата: {type(result).__name__}"
-                    )
-
-                data = {
-                    "data": result,
-                    "meta": job_data.get("meta", {}),
-                }
-                break
-
-                if not isinstance(data, dict):
-                    raise RuntimeError(
-                        f"Нет результатов в завершённой задаче: {job_data}"
-                    )
-
-                break
-
-            if status in {"failed", "cancelled", "canceled", "expired"}:
-                raise RuntimeError(
-                    f"Поиск отелей завершился со статусом {status}: {job_data}"
-                )
-        else:
-            raise TimeoutError(
-                "StayingAPI не завершил поиск за 5 минут."
-            )
-
-    print("FINAL SEARCH RESULT:", data)
-    #временно
-    print("SANDBOX VALUE:", data.get("meta", {}).get("sandbox"))
-    print("RESULT KEYS:", list(data.keys()))
-    print("HOTELS COUNT:", len(data.get("data", [])))
-
-    # Не используем тестовые отели как реальные результаты
-    if data.get("meta", {}).get("sandbox") is True:
-        print("WARNING: StayingAPI returned sandbox data.")
-        print("These hotels are test examples, not real search results.")
-
-        data["data"] = []
-        data["unknown_details"] = []
-
-        return data
-
-    results = data.get("data", [])
-
-    unknown_details = []
-
-    for hotel in results:
-        amenities = hotel.get("amenities", [])
-
-        hotel["pet_policy"] = get_amenity_status(
-            amenities,
-            ["pets allowed", "pet friendly", "pets permitted"],
+    if not data.get("success", False):
+        raise RuntimeError(
+            f"Travelpayouts API error: {data.get('error')}"
         )
 
-        hotel["accessibility_status"] = {
-            "wheelchair": get_amenity_status(
-                amenities,
-                ["wheelchair accessible", "wheelchair access"],
-            )
-        }
+    raw_planes = data.get("data", [])
 
-        if hotel["pet_policy"] is None:
-            unknown_details.append({
-                "hotel": hotel.get("name"),
-                "detail": "pet policy",
-            })
+    if not isinstance(raw_planes, list):
+        raise ValueError("Unexpected API response: data is not a list")
 
-        if hotel["accessibility_status"]["wheelchair"] is None:
-            unknown_details.append({
-                "hotel": hotel.get("name"),
-                "detail": "wheelchair accessible",
-            })
-
-    data["unknown_details"] = unknown_details
-
-    if min_price is not None:
-        results = [
-            hotel for hotel in results
-            if hotel.get("price", {}).get("nightlyPrice") is not None
-            and hotel["price"]["nightlyPrice"] >= min_price
-        ]
-
-    if max_price is not None:
-        results = [
-            hotel for hotel in results
-            if hotel.get("price", {}).get("nightlyPrice") is not None
-            and hotel["price"]["nightlyPrice"] <= max_price
-        ]
-
-    print("Hotels returned by API:", len(data.get("data", [])))
-    print("Hotels after filtering:", len(results))
-
-    for hotel in data.get("data", []):
-        print("\nHotel:", hotel.get("name"))
-        print("Price:", hotel.get("price"))
-        print("Amenities:", hotel.get("amenities"))
-
-    data["data"] = results
-    return data
-
-def filter_hotels(
-    hotels: list[dict],
-    min_price: float | None = None,
-    max_price: float | None = None,
-    min_rating: float | None = None,
-    required_amenities: list[str] | None = None,
-    pets_allowed: bool | None = None,
-) -> list[dict]:
-    print("DEBUG: filter_hotels was called")
-
-    filtered_hotels = []
-
-    for hotel in hotels:
-        price = hotel.get("nightly_price")
-        rating = hotel.get("rating")
-        amenities = hotel.get("amenities") or []
-
-        if min_price is not None:
-            if price is None or price < min_price:
-                continue
-
-        if max_price is not None:
-            if price is None or price > max_price:
-                continue
-
-        if min_rating is not None:
-            if rating is None or rating < min_rating:
-                continue
-
-        if required_amenities:
-            normalized_amenities = {
-                item.lower() for item in amenities
-            }
-
-            if not all (
-                item.lower() in normalized_amenities
-                for item in required_amenities
-            ):
-                continue
-
-        if pets_allowed is True:
-            if hotel.get("pet_policy") is not True:
-                continue
-
-        if pets_allowed is False:
-            if hotel.get("pet_policy") is not False:
-                continue
-
-        filtered_hotels.append(hotel)
-
-    return filtered_hotels
-
-if __name__ == "__main__":
-    result = search_hotels(
-        location="New York",
-        check_in="2026-11-10",
-        check_out="2026-11-15",
-        adults=2,
-        children=1,
-        children_ages=[0],
-        min_price=50,
-        max_price=550,
-        pets_allowed=True,
-        accessibility=["wheelchair"],
-        limit=5,
+    filtered_planes = filter_planes(
+        raw_planes,
+        min_price=min_price,
+        max_price=max_price,
     )
 
-    print(result)
+    result = format_plane_results(
+        filtered_planes,
+        currency=currency,
+    )
 
-def format_hotel_results(data):
-    hotels = []
+    print("Flights returned by API:", len(raw_planes))
+    print("Flights after filtering:", len(filtered_planes))
 
-    for hotel in data.get("data", []):
-        price = hotel.get("price") or {}
-        location = hotel.get("location") or {}
+    return result
 
-        hotels.append({
-            "name": hotel.get("name"),
-            "location": location.get("address")
-                        or location.get("city"),
-            "url": hotel.get("url"),
-            "nightly_price": price.get("nightlyPrice"),
-            "currency": price.get("currency"),
-            "total_price": price.get("totalPrice"),
-            "nights": price.get("nights"),
-            "max_occupancy": hotel.get("maxOccupancy"),
-            "rating": hotel.get("guestRating"),
-            "review_count": hotel.get("reviewCount"),
-            "amenities": hotel.get("amenities", []),
-            "pet_policy": hotel.get("pet_policy", "unknown"),
-            "accessibility": hotel.get(
-                "accessibility_status", {}
-            ),
-        })
 
-    return {
-        "hotels": hotels,
-        "sandbox": data.get("meta", {}).get("sandbox", False),
-        "warnings": data.get("meta", {}).get("warnings", []),
-        "unknown_details": data.get("unknown_details", []),
-    }
+if __name__ == "__main__":
+    try:
+        result = search_planes(
+            origin="MOW",
+            destination="LED",
+            currency="RUB",
+            min_price=1000,
+            max_price=10000,
+        )
 
+        for plane in result["planes"]:
+            print("\n-----------------------------")
+            print("Route:", plane["origin"], "->", plane["destination"])
+            print("Departure:", plane["departure_date"])
+            print("Return:", plane["return_date"])
+            print("Price:", plane["price"], plane["currency"])
+            print("Transfers:", plane["transfers"])
+            print("Price is current:", plane["actual"])
+
+        if not result["planes"]:
+            print("No flights found matching these filters.")
+
+    except (requests.RequestException, ValueError, RuntimeError) as error:
+        print(f"Flight search failed: {error}")
