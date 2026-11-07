@@ -1,0 +1,96 @@
+:root {
+  --font: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: "Unbounded", "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+body, button, input, select, textarea { font-family: var(--font); }
+
+h1, h2, .hero h1, .splash h1, .progress-pct, .order-code {
+  font-family: var(--font-display);
+  letter-spacing: -.2px;
+}
+h2 { color: var(--text); font-size: 18px; font-weight: 700; }
+.page > h2:first-child { font-size: 25px; font-weight: 700; letter-spacing: -.4px; }
+.section-head h2 { color: var(--text); }
+h3 { color: var(--text); font-size: 16px; font-weight: 800; }
+.hero h1 { font-size: 25px; font-weight: 700; }
+.splash h1 { font-size: 30px; font-weight: 700; }
+.progress-pct { font-size: 20px; font-weight: 800; }
+.success-title, .place-dist { color: var(--text); }
+
+.hint, .note, #status {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+.row small, .persona-body small, .cart-title small, .cart-price small, .cart-note, .order-row small, .cart-empty small, .cart-success small, .progress-hint {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+.tile small { font-size: 14.5px; line-height: 1.4; }
+.idea small { font-size: 13.5px; line-height: 1.4; }
+.field span { font-size: 15px; }
+.chip { font-size: 15px; }
+.step { font-size: 14px; }
+.hero p { font-size: 17px; }
+nav button { font-size: 12.5px; }
+.row div { font-size: 17px; }
+.persona-body b { font-size: 16px; }
+.persona-tag { font-size: 13px; }
+.select-btn, input[type="text"], select, textarea { font-size: 16px; }
+.select-item { font-size: 15px; }
+
+.segmented { position: relative; }
+.segmented button {
+  position: relative;
+  z-index: 1;
+  font-size: 15px;
+  transition: color .3s ease, transform .15s ease;
+}
+.segmented button:active { transform: scale(.94); }
+.segmented.has-pill button.active { background: transparent; color: var(--nav-on-text); }
+.seg-pill {
+  position: absolute;
+  z-index: 0;
+  top: 4px;
+  bottom: 4px;
+  left: 0;
+  width: 0;
+  border-radius: 12px;
+  background: linear-gradient(110deg, var(--btn-from), var(--btn-to));
+  box-shadow: 0 6px 14px var(--btn-shadow);
+  transition: transform .42s cubic-bezier(.34, 1.4, .5, 1), width .42s cubic-bezier(.34, 1.4, .5, 1);
+}
+.seg-pill.instant { transition: none; }
+
+.persona-option {
+  transition: border-color .3s ease, box-shadow .3s ease, transform .2s ease, background .3s ease;
+}
+@media (hover: hover) {
+  .persona-option:not(.on):hover { transform: translateY(-2px); box-shadow: 0 10px 24px var(--shadow); }
+}
+.persona-option:not(.on) .persona-avatar img { filter: saturate(.7); opacity: .8; transition: filter .3s ease, opacity .3s ease; }
+.persona-option.on {
+  background: linear-gradient(150deg, var(--card) 35%, var(--tint-blue));
+  box-shadow: 0 0 0 4px var(--focus-ring), 0 10px 24px var(--shadow);
+  animation: persona-pop .5s cubic-bezier(.34, 1.56, .64, 1);
+}
+.persona-option.on .persona-avatar { animation: avatar-hop .65s .05s cubic-bezier(.34, 1.56, .64, 1); }
+.persona-option.on .persona-mark .ico-svg { animation: step-pop .45s .12s cubic-bezier(.34, 1.56, .64, 1) both; }
+
+@keyframes persona-pop {
+  0% { transform: scale(.97); }
+  55% { transform: scale(1.025); }
+  100% { transform: scale(1); }
+}
+@keyframes avatar-hop {
+  0% { transform: translateY(6px) rotate(-8deg) scale(.9); }
+  55% { transform: translateY(-7px) rotate(5deg) scale(1.12); }
+  100% { transform: translateY(0) rotate(0) scale(1); }
+}
+@keyframes step-pop { 0% { transform: scale(.3); } 100% { transform: scale(1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .seg-pill { transition: none; }
+  .persona-option.on, .persona-option.on .persona-avatar, .persona-option.on .persona-mark .ico-svg { animation: none; }
+}

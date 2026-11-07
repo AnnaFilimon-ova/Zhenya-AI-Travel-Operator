@@ -41,6 +41,8 @@ export const PATHS = {
   accessible: `<circle cx="16" cy="4" r="1" /> <path d="m18 19 1-7-6 1" /> <path d="m5 8 3-3 5.5 3-2.36 3.5" /> <path d="M4.24 14.5a5 5 0 0 0 6.88 6" /> <path d="M13.76 17.5a5 5 0 0 0-6.88-6" />`,
   cart: `<circle cx="8" cy="21" r="1" /> <circle cx="19" cy="21" r="1" /> <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />`,
   trash: `<path d="M3 6h18" /> <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /> <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /> <line x1="10" x2="10" y1="11" y2="17" /> <line x1="14" x2="14" y1="11" y2="17" />`,
+  arrow: `<path d="M5 12h14" /> <path d="m12 5 7 7-7 7" />`,
+  circle: `<circle cx="12" cy="12" r="9" />`,
   plus: `<path d="M5 12h14" /> <path d="M12 5v14" />`,
   minus: `<path d="M5 12h14" />`,
   done: `<circle cx="12" cy="12" r="10" /> <path d="m9 12 2 2 4-4" />`,

@@ -21,12 +21,12 @@ const FEATURE_DEFS = [
   ["trip", "trip", false],
   ["hotels", "hotels", false],
   ["prefs", "prefs", false],
-  ["places", "places", true],
+  ["places", "places", false],
   ["events", "events", true],
   ["routes", "routes", true],
 ];
 export const features = () =>
-  FEATURE_DEFS.map(([k, ic, soon]) => ({ ic, soon, title: t(`feature.${k}.title`), text: t(`feature.${k}.text`) }));
+  FEATURE_DEFS.map(([k, ic, soon]) => ({ key: k, ic, soon, title: t(`feature.${k}.title`), text: t(`feature.${k}.text`) }));
 
 const PERSONA_DEFS = [
   ["female", "/static/zhenya-female.webp"],

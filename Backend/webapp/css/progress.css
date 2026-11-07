@@ -1,0 +1,61 @@
+.progress-card {
+  margin: 0 0 18px;
+  padding: 16px;
+  border-radius: 20px;
+  background: linear-gradient(150deg, var(--card) 35%, var(--tint-blue));
+  border: 1px solid var(--border);
+  box-shadow: 0 6px 20px var(--shadow);
+  transition: box-shadow .4s ease, border-color .4s ease;
+}
+.progress-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.progress-top b { font-size: 16px; color: var(--text); }
+.progress-pct { font-size: 22px; font-weight: 800; color: var(--accent); letter-spacing: -.5px; }
+
+.progress-track { height: 12px; border-radius: 12px; background: var(--divider); overflow: hidden; }
+.progress-track i {
+  position: relative;
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: 12px;
+  background: linear-gradient(90deg, var(--accent), var(--orange));
+  transition: width .7s cubic-bezier(.3, .9, .3, 1);
+  overflow: hidden;
+}
+.progress-track i::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, .55) 50%, transparent 70%);
+  transform: translateX(-100%);
+  animation: progress-shine 2.6s ease-in-out infinite;
+}
+
+.progress-steps { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px; }
+.step {
+  display: inline-flex; align-items: center; gap: 6px;
+  font: inherit; font-size: 13px; font-weight: 600;
+  color: var(--hint);
+  background: var(--chip-bg);
+  border: 1px solid var(--chip-border);
+  border-radius: 20px;
+  padding: 7px 11px;
+  cursor: pointer;
+  transition: all .25s ease;
+}
+.step:active { transform: scale(.96); }
+.step.done { color: var(--chip-on-text); background: var(--chip-on-bg); border-color: var(--chip-on-border); }
+.step.done .ico-svg { animation: step-pop .4s cubic-bezier(.34, 1.56, .64, 1); }
+.progress-hint { display: block; margin-top: 12px; color: var(--hint); font-size: 13px; font-weight: 600; line-height: 1.4; }
+
+.progress-card.complete { border-color: var(--orange); box-shadow: 0 8px 26px var(--shadow), 0 0 0 3px var(--badge-bg); }
+.progress-card.complete .progress-pct { color: var(--accent); animation: step-pop .5s cubic-bezier(.34, 1.56, .64, 1); }
+.progress-card.complete .progress-hint { display: none; }
+
+@keyframes progress-shine { 0% { transform: translateX(-100%); } 60%, 100% { transform: translateX(100%); } }
+@keyframes step-pop { 0% { transform: scale(.3); } 100% { transform: scale(1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .progress-track i { transition: none; }
+  .progress-track i::after, .step.done .ico-svg, .progress-card.complete .progress-pct { animation: none; }
+}

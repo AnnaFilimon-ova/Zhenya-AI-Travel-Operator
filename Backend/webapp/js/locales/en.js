@@ -20,6 +20,7 @@ export default {
   "home.emptyTitle": "Nothing here yet",
   "home.emptyText": "Pick what you're into in your profile and ideas will show up here.",
   "home.fillProfile": "Fill in profile",
+  "home.ideaOpen": "See places",
   "home.features": "What I can do",
 
   "feature.trip.title": "Trip planning",
@@ -62,6 +63,14 @@ export default {
   "persona.failed": "Couldn't save. Please try again.",
 
   "profile.title": "Profile",
+  "progress.title": "Profile completeness",
+  "progress.complete": "Profile complete!",
+  "progress.hint": "Fill in everything and Zhenya will pick trips more accurately.",
+  "progress.name": "Name",
+  "progress.occupation": "Who you are",
+  "progress.food": "Favorite food",
+  "progress.travel": "Aesthetic and style",
+  "progress.place": "Favorite place",
   "profile.hint": "Zhenya will remember this and use it when planning trips.",
   "profile.name": "What should I call you",
   "profile.namePlaceholder": "Name",

@@ -1,7 +1,7 @@
 import { $, h, iconEl } from "./dom.js";
 
 // options: [[ключ, подпись, имя_иконки?], ...]
-export function renderChips(containerId, options) {
+export function renderChips(containerId, options, onOn) {
   const box = $(containerId);
   box.replaceChildren();
   options.forEach(([key, label, iconName]) => {
@@ -10,7 +10,10 @@ export function renderChips(containerId, options) {
     btn.appendChild(h("span", "", label));
     btn.type = "button";
     btn.dataset.key = key;
-    btn.addEventListener("click", () => btn.classList.toggle("on"));
+    btn.addEventListener("click", () => {
+      btn.classList.toggle("on");
+      if (btn.classList.contains("on")) onOn?.(key);
+    });
     box.appendChild(btn);
   });
 }

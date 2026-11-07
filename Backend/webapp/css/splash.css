@@ -1,0 +1,109 @@
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  background:
+    radial-gradient(ellipse at 50% 28%, var(--hero-to), transparent 62%),
+    radial-gradient(ellipse at 50% 100%, var(--bg-glow-2), transparent 55%),
+    var(--bg);
+  color: var(--text);
+  transition: opacity .45s ease, visibility .45s ease;
+}
+.splash.hide { opacity: 0; visibility: hidden; }
+
+.splash-art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 220px;
+  height: 220px;
+}
+.splash-art::before,
+.splash-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  opacity: 0;
+  animation: splash-ring 2.4s ease-out infinite;
+}
+.splash-art::after { animation-delay: 1.2s; border-color: var(--orange); }
+.splash-logo {
+  position: relative;
+  width: 172px;
+  height: 150px;
+  background: linear-gradient(110deg, var(--accent) 0%, var(--accent) 38%, var(--orange) 50%, var(--accent) 62%, var(--accent) 100%);
+  background-size: 260% 100%;
+  -webkit-mask: url("/static/zhenya-logo.webp") center / contain no-repeat;
+  mask: url("/static/zhenya-logo.webp") center / contain no-repeat;
+  filter: drop-shadow(0 14px 18px var(--shadow-nav));
+  animation: splash-float 3s ease-in-out infinite, splash-shine 2.6s ease-in-out infinite;
+}
+
+.splash h1 {
+  margin: 22px 0 6px;
+  font-size: 34px;
+  letter-spacing: -.8px;
+  color: var(--accent);
+  animation: splash-rise .6s ease both;
+}
+.splash p {
+  margin: 0;
+  padding: 0 32px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--hint);
+  animation: splash-rise .6s .12s ease both;
+}
+
+.splash-bar {
+  width: 148px;
+  height: 5px;
+  margin-top: 34px;
+  border-radius: 5px;
+  overflow: hidden;
+  background: var(--divider);
+  animation: splash-rise .6s .24s ease both;
+}
+.splash-bar i {
+  display: block;
+  width: 42%;
+  height: 100%;
+  border-radius: 5px;
+  background: linear-gradient(90deg, var(--accent), var(--orange));
+  animation: splash-slide 1.3s ease-in-out infinite;
+}
+
+@keyframes splash-float {
+  0%, 100% { transform: translateY(0) rotate(-1.5deg); }
+  50% { transform: translateY(-12px) rotate(1.5deg); }
+}
+@keyframes splash-shine {
+  0% { background-position: 100% 0; }
+  100% { background-position: 0% 0; }
+}
+@keyframes splash-ring {
+  0% { transform: scale(.55); opacity: .55; }
+  100% { transform: scale(1.12); opacity: 0; }
+}
+@keyframes splash-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes splash-slide {
+  0% { transform: translateX(-110%); }
+  100% { transform: translateX(260%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash-art::before, .splash-art::after, .splash-logo, .splash-bar i { animation: none; }
+  .splash-bar i { width: 100%; }
+}

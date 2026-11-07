@@ -1,8 +1,8 @@
 import { tg, isInTelegram } from "./telegram.js";
 
 const KEY = "zhenya-theme"; // auto | light | dark
-const HEADER_COLORS = { light: "#e1f2e5", dark: "#1d3328" };
-const BG_COLORS = { light: "#fffaf8", dark: "#0f1713" };
+const HEADER_COLORS = { light: "#ffffff", dark: "#162238" };
+const BG_COLORS = { light: "#f4f7fc", dark: "#0e1626" };
 
 export function getThemePreference() {
   try {

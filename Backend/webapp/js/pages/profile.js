@@ -3,12 +3,17 @@ import { renderChips, selectedChips, setChips } from "../chips.js";
 import { foodPrefs, occupations, travelTypes } from "../constants.js";
 import { $, h } from "../dom.js";
 import { t } from "../i18n.js";
+import { react } from "../mascot.js";
+import { initProgress, updateProgress } from "../profile-progress.js";
 
 // onLoad / onSave вызываются с данными профиля, чтобы главная страница могла обновиться.
 export function initProfile({ onLoad, onSave }) {
-  renderChips("travel_types", travelTypes());
-  renderChips("food_prefs", foodPrefs());
+  renderChips("travel_types", travelTypes(), react);
+  renderChips("food_prefs", foodPrefs(), react);
   fillOccupations();
+  initProgress();
+  $("with_pets").addEventListener("change", (e) => e.target.checked && react("pets"));
+  $("accessible").addEventListener("change", (e) => e.target.checked && react("accessible"));
 
   $("save").addEventListener("click", () => save(onSave));
   load(onLoad);
@@ -46,6 +51,7 @@ function fill(p) {
   $("favorite_places").value = p.favorite_places;
   setChips("travel_types", p.travel_types);
   setChips("food_prefs", p.food_prefs);
+  updateProgress();
 }
 
 async function load(onLoad) {
@@ -68,6 +74,7 @@ async function save(onSave) {
     await api("/api/profile", { method: "PUT", body: JSON.stringify(data) });
     status.textContent = t("profile.saved");
     onSave?.(data);
+    react("saved");
   } catch {
     status.textContent = t("profile.saveFailed");
   } finally {

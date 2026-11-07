@@ -19,16 +19,42 @@
       } catch (e) {}
     })();
   </script>
+  <link rel="preload" as="font" type="font/woff2" href="/static/fonts/manrope-cyrillic-wght-normal.woff2" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" href="/static/fonts/unbounded-cyrillic-wght-normal.woff2" crossorigin>
+  <link rel="stylesheet" href="/static/css/fonts.css">
   <link rel="stylesheet" href="/static/css/theme.css">
   <link rel="stylesheet" href="/static/css/base.css">
   <link rel="stylesheet" href="/static/css/components.css">
+  <link rel="stylesheet" href="/static/css/splash.css">
+  <link rel="stylesheet" href="/static/css/orbit.css">
+  <link rel="stylesheet" href="/static/css/mascot.css">
+  <link rel="stylesheet" href="/static/css/home.css">
+  <link rel="stylesheet" href="/static/css/hero.css">
+  <link rel="stylesheet" href="/static/css/progress.css">
+  <link rel="stylesheet" href="/static/css/polish.css">
+  <link rel="preload" as="image" href="/static/zhenya-logo.webp">
 </head>
 <body>
+
+  <div class="splash" id="splash" role="status" aria-live="polite">
+    <div class="splash-art"><div class="splash-logo"></div></div>
+    <h1>Женя</h1>
+    <p data-i18n="home.tagline">Я Женя, твой AI-оператор путешествий</p>
+    <div class="splash-bar"><i></i></div>
+  </div>
 
   <!-- Главная -->
   <section class="page active" id="page-home">
     <div class="hero">
-      <img src="/static/zhenya.webp" alt="Женя" data-i18n-alt="app.name">
+    <div class="hero-bg" aria-hidden="true">
+            <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+      <span class="spark " style="left:12%;top:70px;animation-delay:0s;transform-origin:center;width:12px;height:12px"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1l2.2 8.8L23 12l-8.8 2.2L12 23l-2.2-8.8L1 12l8.8-2.2z"/></svg></span><span class="spark blue" style="left:84%;top:64px;animation-delay:1.2s;transform-origin:center;width:14px;height:14px"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1l2.2 8.8L23 12l-8.8 2.2L12 23l-2.2-8.8L1 12l8.8-2.2z"/></svg></span><span class="spark blue" style="left:8%;top:300px;animation-delay:0.6s;transform-origin:center;width:11px;height:11px"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1l2.2 8.8L23 12l-8.8 2.2L12 23l-2.2-8.8L1 12l8.8-2.2z"/></svg></span><span class="spark " style="left:90%;top:250px;animation-delay:1.8s;transform-origin:center;width:15px;height:15px"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1l2.2 8.8L23 12l-8.8 2.2L12 23l-2.2-8.8L1 12l8.8-2.2z"/></svg></span><span class="spark " style="left:22%;top:470px;animation-delay:2.2s;transform-origin:center;width:12px;height:12px"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1l2.2 8.8L23 12l-8.8 2.2L12 23l-2.2-8.8L1 12l8.8-2.2z"/></svg></span><span class="spark blue" style="left:78%;top:440px;animation-delay:0.3s;transform-origin:center;width:14px;height:14px"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1l2.2 8.8L23 12l-8.8 2.2L12 23l-2.2-8.8L1 12l8.8-2.2z"/></svg></span><span class="spark blue" style="left:50%;top:36px;animation-delay:2.5s;transform-origin:center;width:11px;height:11px"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1l2.2 8.8L23 12l-8.8 2.2L12 23l-2.2-8.8L1 12l8.8-2.2z"/></svg></span><span class="spark " style="left:94%;top:380px;animation-delay:1s;transform-origin:center;width:12px;height:12px"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1l2.2 8.8L23 12l-8.8 2.2L12 23l-2.2-8.8L1 12l8.8-2.2z"/></svg></span>
+    </div>
+      <div class="hero-art">
+        <div class="orbit" style="--t:26s"><span class="o" style="--a:0deg;--r:128px"><span class="chip-o "><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/></svg></span></span><span class="o" style="--a:90deg;--r:128px"><span class="chip-o warm"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg></span></span><span class="o" style="--a:180deg;--r:128px"><span class="chip-o "><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg></span></span><span class="o" style="--a:270deg;--r:128px"><span class="chip-o warm"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/></svg></span></span></div>
+        <div class="orbit far rev" style="--t:38s"><span class="o" style="--a:45deg;--r:162px"><span class="chip-o "><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg></span></span><span class="o" style="--a:225deg;--r:162px"><span class="chip-o cool"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2"/><path d="M13 17v2"/><path d="M13 11v2"/></svg></span></span></div>
+        <img src="/static/zhenya.webp" alt="Женя" data-i18n-alt="app.name">
+      </div>
       <h1 id="greeting" data-i18n="home.hello">Привет!</h1>
       <p data-i18n="home.tagline">Я Женя, твой AI-оператор путешествий</p>
       <button class="hero-btn" id="cta-chat" type="button" data-i18n="home.cta">Спланировать поездку в чате</button>
@@ -77,6 +103,8 @@
   <section class="page" id="page-profile">
     <h2 data-i18n="profile.title">Профиль</h2>
     <p class="hint" style="margin: -6px 0 14px;" data-i18n="profile.hint">Женя запомнит это и будет учитывать при подборе поездок.</p>
+
+    <div class="progress-card" id="profile-progress"></div>
 
     <div class="card">
       <label class="field"><span data-i18n="profile.name">Как к тебе обращаться</span>

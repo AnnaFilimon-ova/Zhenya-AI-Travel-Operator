@@ -20,6 +20,7 @@ export default {
   "home.emptyTitle": "Пока пусто",
   "home.emptyText": "Выбери, что тебе интересно, в профиле, и здесь появятся идеи.",
   "home.fillProfile": "Заполнить профиль",
+  "home.ideaOpen": "Смотреть места",
   "home.features": "Что я умею",
 
   "feature.trip.title": "Подбор отпуска",
@@ -62,6 +63,14 @@ export default {
   "persona.failed": "Не получилось сохранить. Попробуй ещё раз.",
 
   "profile.title": "Профиль",
+  "progress.title": "Заполненность профиля",
+  "progress.complete": "Профиль заполнен!",
+  "progress.hint": "Заполни всё, и Женя будет подбирать поездки точнее.",
+  "progress.name": "Имя",
+  "progress.occupation": "Кто ты",
+  "progress.food": "Любимая еда",
+  "progress.travel": "Эстетика и стиль",
+  "progress.place": "Любимое место",
   "profile.hint": "Женя запомнит это и будет учитывать при подборе поездок.",
   "profile.name": "Как к тебе обращаться",
   "profile.namePlaceholder": "Имя",

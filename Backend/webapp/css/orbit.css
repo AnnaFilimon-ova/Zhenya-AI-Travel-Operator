@@ -1,0 +1,64 @@
+.hero-art {
+  position: relative;
+  width: 340px;
+  height: 340px;
+  margin: 0 auto -6px;
+}
+.hero .hero-art img {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 272px;
+  max-width: none;
+  transform: translate(-50%, -50%);
+  animation: hero-bob 4.2s ease-in-out infinite;
+}
+
+.orbit {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  animation: orbit-spin var(--t) linear infinite;
+}
+.orbit.rev { animation-direction: reverse; }
+.orbit .o {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  transform: rotate(var(--a)) translateX(var(--r)) rotate(calc(var(--a) * -1));
+}
+.orbit .chip-o {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: 0 6px 16px var(--shadow);
+  color: var(--accent);
+  animation: orbit-spin var(--t) linear infinite reverse;
+}
+.orbit.rev .chip-o { animation-direction: normal; }
+.orbit .chip-o.warm { color: var(--orange); }
+.orbit .chip-o svg { display: block; }
+
+.orbit.far .o { width: 46px; height: 46px; margin: -23px 0 0 -23px; }
+.orbit.far .chip-o { border-radius: 50%; background: var(--orange); border-color: transparent; color: var(--on-orange); }
+.orbit.far .chip-o.cool { background: var(--accent); color: #fff; }
+
+@keyframes orbit-spin { to { transform: rotate(360deg); } }
+@keyframes hero-bob {
+  0%, 100% { transform: translate(-50%, -50%); }
+  50% { transform: translate(-50%, calc(-50% - 7px)); }
+}
+
+@media (max-width: 380px) {
+  .hero-art { scale: .9; margin-bottom: -24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .orbit, .orbit .chip-o, .hero .hero-art img { animation: none; }
+}

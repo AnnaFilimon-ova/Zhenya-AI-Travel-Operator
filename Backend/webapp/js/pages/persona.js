@@ -6,6 +6,8 @@ import { t } from "../i18n.js";
 let current = "any";
 let saving = false;
 
+export const getPersona = () => current;
+
 export async function initPersona() {
   render();
   try {

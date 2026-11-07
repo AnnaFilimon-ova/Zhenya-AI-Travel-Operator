@@ -1,0 +1,84 @@
+.hero { overflow: hidden; }
+.hero > *:not(.hero-bg) { position: relative; z-index: 1; }
+
+.hero-bg { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.hero-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(var(--dot) 1.3px, transparent 1.8px);
+  background-size: 24px 24px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 38%, transparent 22%, #000 90%);
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 38%, transparent 22%, #000 90%);
+  animation: dots-drift 30s linear infinite;
+}
+.hero-bg::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 50%;
+  background: radial-gradient(ellipse 75% 100% at 50% 100%, var(--hero-wave), transparent 70%);
+}
+
+.hero-art::before {
+  content: "";
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 330px; height: 330px;
+  margin: -165px 0 0 -165px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 38%, var(--halo-a), var(--halo-b) 55%, transparent 72%);
+  animation: halo 5s ease-in-out infinite;
+}
+
+.cloud {
+  position: absolute;
+  width: 110px; height: 30px;
+  border-radius: 30px;
+  background: var(--cloud);
+  filter: blur(1px);
+  animation: cloud-drift 20s ease-in-out infinite alternate;
+}
+.cloud::before, .cloud::after { content: ""; position: absolute; border-radius: 50%; background: inherit; }
+.cloud::before { width: 44px; height: 44px; left: 20px; top: -20px; }
+.cloud::after { width: 34px; height: 34px; left: 58px; top: -13px; }
+.cloud.c1 { left: 6%; top: 210px; }
+.cloud.c2 { right: 4%; top: 330px; width: 90px; animation-duration: 26s; animation-delay: -8s; opacity: .8; }
+.cloud.c3 { left: 14%; top: 400px; width: 80px; animation-duration: 32s; animation-delay: -14s; opacity: .6; }
+
+.spark {
+  position: absolute;
+  width: 14px; height: 14px;
+  color: var(--orange);
+  animation: twinkle 3s ease-in-out infinite;
+}
+.spark.blue { color: var(--accent); }
+.spark svg { display: block; width: 100%; height: 100%; fill: currentColor; }
+
+@keyframes cloud-drift { to { transform: translateX(46px); } }
+@keyframes twinkle {
+  0%, 100% { opacity: .15; transform: scale(.6) rotate(0); }
+  50% { opacity: 1; transform: scale(1.15) rotate(25deg); }
+}
+@keyframes halo { 0%, 100% { transform: scale(1); opacity: .9; } 50% { transform: scale(1.09); opacity: 1; } }
+@keyframes dots-drift { to { background-position: 24px 24px; } }
+
+:root {
+  --dot: rgba(43, 95, 217, .2);
+  --hero-wave: rgba(255, 150, 70, .22);
+  --halo-a: rgba(255, 190, 130, .55);
+  --halo-b: rgba(90, 140, 255, .28);
+  --cloud: rgba(255, 255, 255, .85);
+}
+:root[data-theme="dark"] {
+  --dot: rgba(122, 165, 255, .18);
+  --hero-wave: rgba(255, 140, 70, .14);
+  --halo-a: rgba(255, 150, 80, .3);
+  --halo-b: rgba(80, 125, 240, .28);
+  --cloud: rgba(130, 170, 255, .14);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-bg::before, .hero-art::before, .cloud, .spark { animation: none; }
+  .spark { opacity: .7; }
+}
