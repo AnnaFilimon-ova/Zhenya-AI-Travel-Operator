@@ -94,3 +94,41 @@ nav button { font-size: 12.5px; }
   .seg-pill { transition: none; }
   .persona-option.on, .persona-option.on .persona-avatar, .persona-option.on .persona-mark .ico-svg { animation: none; }
 }
+
+.how { margin-bottom: 6px; }
+.how-list { list-style: none; margin: 0 0 18px; padding: 0; display: grid; gap: 10px; counter-reset: none; }
+.how-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: linear-gradient(150deg, var(--card) 40%, var(--tint-blue));
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 14px var(--shadow);
+}
+.how-n {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, var(--btn-from), var(--btn-to));
+  box-shadow: 0 6px 12px var(--btn-shadow);
+}
+.how-list li:nth-child(2) .how-n { background: var(--orange); color: var(--on-orange); box-shadow: 0 6px 12px var(--shadow); }
+.how-list b { display: block; font-size: 16px; color: var(--text); margin-bottom: 3px; }
+.how-list small { display: block; font-size: 14.5px; font-weight: 600; line-height: 1.45; color: var(--hint); }
+
+body { font-weight: 600; }
+.hint, .note, #status { font-weight: 700; }
+.row small, .persona-body small, .cart-title small, .cart-price small, .cart-note, .order-row small, .cart-empty small, .cart-success small, .progress-hint, .tile small, .idea small, .how-list small { font-weight: 700; }
+.field span, .chip, .step, .segmented button, .select-item, nav button, .persona-tag, .select-btn { font-weight: 700; }
+.row div, .persona-body b, .tile b, .idea b, .how-list b { font-weight: 800; }
+.idea small { opacity: .95; }
+input, select, textarea { font-weight: 600; }

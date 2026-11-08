@@ -31,21 +31,61 @@
   animation: progress-shine 2.6s ease-in-out infinite;
 }
 
-.progress-steps { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 14px; }
+.progress-steps { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 14px; }
 .step {
-  display: inline-flex; align-items: center; gap: 6px;
-  font: inherit; font-size: 13px; font-weight: 600;
-  color: var(--hint);
+  position: relative;
+  display: flex; align-items: center; gap: 9px;
+  min-width: 0;
+  font: inherit; font-size: 14px; font-weight: 700;
+  color: var(--label);
   background: var(--chip-bg);
   border: 1px solid var(--chip-border);
-  border-radius: 20px;
-  padding: 7px 11px;
+  border-radius: 999px;
+  padding: 6px 12px 6px 6px;
   cursor: pointer;
-  transition: all .25s ease;
+  text-align: left;
+  box-shadow: 0 3px 10px var(--shadow);
+  transition: background .35s ease, color .35s ease, border-color .35s ease, box-shadow .35s ease, transform .15s ease;
+  animation: bubble-float 4.4s ease-in-out infinite;
 }
-.step:active { transform: scale(.96); }
-.step.done { color: var(--chip-on-text); background: var(--chip-on-bg); border-color: var(--chip-on-border); }
-.step.done .ico-svg { animation: step-pop .4s cubic-bezier(.34, 1.56, .64, 1); }
+.step:nth-child(2) { animation-delay: -.9s; }
+.step:nth-child(3) { animation-delay: -1.8s; }
+.step:nth-child(4) { animation-delay: -2.7s; }
+.step:nth-child(5) { animation-delay: -3.6s; grid-column: 1 / -1; justify-self: center; min-width: 58%; }
+.step:active { transform: scale(.95); }
+.bub-ic {
+  position: relative;
+  flex: 0 0 auto;
+  display: grid; place-items: center;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--hover);
+  color: var(--accent);
+  transition: background .35s ease, color .35s ease;
+}
+.bub-ck {
+  position: absolute;
+  right: -3px; bottom: -3px;
+  display: grid; place-items: center;
+  width: 15px; height: 15px;
+  border-radius: 50%;
+  background: var(--orange);
+  color: var(--on-orange);
+  border: 2px solid var(--card);
+  transform: scale(0);
+  transition: transform .35s cubic-bezier(.34, 1.56, .64, 1);
+}
+.bub-label { min-width: 0; line-height: 1.15; }
+.step.done {
+  color: #fff;
+  border-color: transparent;
+  background: linear-gradient(120deg, var(--btn-from), var(--btn-to));
+  box-shadow: 0 8px 18px var(--btn-shadow);
+  animation: none;
+}
+.step.done .bub-ic { background: rgba(255, 255, 255, .24); color: #fff; }
+.step.done .bub-ck { transform: scale(1); background: #fff; color: var(--accent); border-color: transparent; }
+.step.pop { animation: bubble-pop .6s cubic-bezier(.34, 1.56, .64, 1); }
 .progress-hint { display: block; margin-top: 12px; color: var(--hint); font-size: 13px; font-weight: 600; line-height: 1.4; }
 
 .progress-card.complete { border-color: var(--orange); box-shadow: 0 8px 26px var(--shadow), 0 0 0 3px var(--badge-bg); }
@@ -53,9 +93,11 @@
 .progress-card.complete .progress-hint { display: none; }
 
 @keyframes progress-shine { 0% { transform: translateX(-100%); } 60%, 100% { transform: translateX(100%); } }
+@keyframes bubble-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes bubble-pop { 0% { transform: scale(.82); } 55% { transform: scale(1.08); } 100% { transform: scale(1); } }
 @keyframes step-pop { 0% { transform: scale(.3); } 100% { transform: scale(1); } }
 
 @media (prefers-reduced-motion: reduce) {
   .progress-track i { transition: none; }
-  .progress-track i::after, .step.done .ico-svg, .progress-card.complete .progress-pct { animation: none; }
+  .progress-track i::after, .step, .step.pop, .progress-card.complete .progress-pct { animation: none; }
 }

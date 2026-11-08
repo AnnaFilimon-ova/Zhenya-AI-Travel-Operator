@@ -18,12 +18,10 @@ export const ideaFor = (key) =>
   IDEA_ICONS[key] ? { ic: IDEA_ICONS[key], title: t(`idea.${key}.title`), text: t(`idea.${key}.text`) } : null;
 
 const FEATURE_DEFS = [
-  ["trip", "trip", false],
-  ["hotels", "hotels", false],
+  ["trip", "plane", false],
+  ["cart", "cart", false],
   ["prefs", "prefs", false],
   ["places", "places", false],
-  ["events", "events", true],
-  ["routes", "routes", true],
 ];
 export const features = () =>
   FEATURE_DEFS.map(([k, ic, soon]) => ({ key: k, ic, soon, title: t(`feature.${k}.title`), text: t(`feature.${k}.text`) }));

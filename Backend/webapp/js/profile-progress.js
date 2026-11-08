@@ -3,11 +3,11 @@ import { t } from "./i18n.js";
 import { react } from "./mascot.js";
 
 const STEPS = [
-  { key: "name", target: "display_name", done: (d) => d.name.trim().length > 0 },
-  { key: "occupation", target: "occupation", done: (d) => d.occupation !== "" },
-  { key: "food", target: "food_prefs", done: (d) => d.food > 0 },
-  { key: "travel", target: "travel_types", done: (d) => d.travel > 0 },
-  { key: "place", target: "favorite_places", done: (d) => d.place.trim().length > 0 },
+  { key: "name", icon: "profile", target: "display_name", done: (d) => d.name.trim().length > 0 },
+  { key: "occupation", icon: "student", target: "occupation", done: (d) => d.occupation !== "" },
+  { key: "food", icon: "gastro", target: "food_prefs", done: (d) => d.food > 0 },
+  { key: "travel", icon: "aesthetic", target: "travel_types", done: (d) => d.travel > 0 },
+  { key: "place", icon: "places", target: "favorite_places", done: (d) => d.place.trim().length > 0 },
 ];
 
 let root = null;
@@ -42,7 +42,12 @@ function build() {
   stepEls = STEPS.map((s) => {
     const btn = h("button", "step");
     btn.type = "button";
-    btn.append(iconEl("circle", 14), h("span", "", t("progress." + s.key)));
+    const ic = h("span", "bub-ic");
+    ic.appendChild(iconEl(s.icon, 16));
+    const ck = h("span", "bub-ck");
+    ck.appendChild(iconEl("check", 10));
+    ic.appendChild(ck);
+    btn.append(ic, h("span", "bub-label", t("progress." + s.key)));
     btn.addEventListener("click", () => {
       const el = $(s.target);
       el.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -65,7 +70,11 @@ export function updateProgress(announce = false) {
     const el = stepEls[i];
     if (el.classList.contains("done") !== ok) {
       el.classList.toggle("done", ok);
-      el.replaceChild(iconEl(ok ? "check" : "circle", 14), el.firstChild);
+      if (ok && last >= 0) {
+        el.classList.remove("pop");
+        void el.offsetWidth;
+        el.classList.add("pop");
+      }
     }
   });
   const value = Math.round((done / STEPS.length) * 100);

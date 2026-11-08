@@ -110,21 +110,16 @@ function renderIdeas(profile) {
     const more = h("span", "more");
     more.append(h("span", "", t("home.ideaOpen")), iconEl("arrow", 15));
     card.append(tile, h("b", "", idea.title), h("small", "", idea.text), more);
-    card.addEventListener("click", () => {
-      react("ideaGo");
-      goTo("nearby");
-    });
+    card.addEventListener("click", () => chat("ideaGo"));
     list.appendChild(card);
   });
 }
 
 const FEATURE_ACTIONS = {
   trip: () => chat("tripGo"),
-  hotels: () => chat("hotelsGo"),
+  cart: () => goTo("cart"),
   prefs: () => goTo("profile"),
   places: () => goTo("nearby"),
-  events: () => react("soon"),
-  routes: () => react("soon"),
 };
 
 function chat(key) {

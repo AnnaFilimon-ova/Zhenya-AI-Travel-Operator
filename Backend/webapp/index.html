@@ -62,10 +62,19 @@
 
     <div class="note" id="budget-note" hidden></div>
 
+    <div class="how">
+      <div class="section-head"><h2 data-i18n="how.title">Как это работает</h2></div>
+      <ol class="how-list">
+        <li><span class="how-n">1</span><div><b data-i18n="how.s1.title">Напиши в чате</b><small data-i18n="how.s1.text">Расскажи Жене, куда хочешь поехать или слетать и когда. Например: «Москва — Сочи, 12 декабря».</small></div></li>
+        <li><span class="how-n">2</span><div><b data-i18n="how.s2.title">Выбери вариант</b><small data-i18n="how.s2.text">Женя покажет подходящие варианты с ценой. Нажми «+» под нужным, и он попадёт в корзину.</small></div></li>
+        <li><span class="how-n">3</span><div><b data-i18n="how.s3.title">Проверь и оформи</b><small data-i18n="how.s3.text">Открой вкладку «Корзина»: там выбранное и ссылки, чтобы проверить цену и купить.</small></div></li>
+      </ol>
+    </div>
+
     <div class="section-head">
       <h2 data-i18n="home.forYou">Для тебя</h2>
     </div>
-    <p class="hint" style="margin: -6px 0 12px;" data-i18n="home.forYouHint">Идеи по твоим интересам. Конкретные места появятся в разделе «Рядом».</p>
+    <p class="hint" style="margin: -6px 0 12px;" data-i18n="home.forYouHint">Идеи по твоим интересам. Нажми на карточку, и Женя поможет с поездкой в чате.</p>
     <div class="scroller" id="interest-list"></div>
 
     <div class="section-head">
@@ -146,6 +155,7 @@
   <!-- Рядом -->
   <section class="page" id="page-nearby">
     <h2 data-i18n="nearby.title">Рядом</h2>
+    <p class="hint" style="margin: -6px 0 14px;" data-i18n="nearby.about">Что посмотреть и где поесть на месте. Пока работает для городов России.</p>
     <div class="card">
       <button class="save" id="nearby-locate" type="button" data-i18n="nearby.locate">Определить, где я</button>
       <label class="field" style="margin-top: 14px;"><span data-i18n="nearby.orCity">Или выбери город</span>
@@ -168,14 +178,12 @@
     <div class="chips" id="nearby-cats" style="margin-bottom: 10px;"></div>
     <div class="chips" id="nearby-radius" style="margin-bottom: 14px;"></div>
     <div id="nearby-root"></div>
-    <div class="card soon-row soon"><span class="with-ico"><svg class="svg-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" /> <path d="M13 5v2" /> <path d="M13 17v2" /> <path d="M13 11v2" /></svg><span data-i18n="nearby.events">События рядом</span></span><span class="badge" data-i18n="common.soon">скоро</span></div>
-    <div class="card soon-row soon"><span class="with-ico"><svg class="svg-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="19" r="3" /> <path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" /> <circle cx="18" cy="5" r="3" /></svg><span data-i18n="nearby.routes">Маршруты</span></span><span class="badge" data-i18n="common.soon">скоро</span></div>
   </section>
 
   <!-- Корзина -->
   <section class="page" id="page-cart">
     <h2 data-i18n="cart.title">Корзина</h2>
-    <p class="hint" style="margin: -6px 0 14px;" data-i18n="cart.hint">Места, которые ты выбрала в чате. Цены оценочные, оплата демонстрационная.</p>
+    <p class="hint" style="margin: -6px 0 14px;" data-i18n="cart.hint">Варианты, которые ты выбрала в чате. Цены ориентировочные: точную цену проверяй перед покупкой. Оплата здесь тестовая.</p>
     <div id="cart-root"></div>
   </section>
 
