@@ -8,7 +8,7 @@ from app.providers.base import (
 from app.providers.hotels import OsmCatalogHotels
 from app.providers.places import OverpassPlaces
 from app.config import settings
-from app.providers.transport import CombinedTransport, MockTrains, TravelpayoutsFlights
+from app.providers.transport import NoTransport, TravelpayoutsFlights
 from app.providers.weather import OpenMeteoWeather
 
 _overrides: dict[str, object] = {}
@@ -33,8 +33,9 @@ def get_places() -> PlacesProvider:
 def get_transport() -> TransportProvider:
     if "transport" in _overrides:
         return _overrides["transport"]
-    flights = TravelpayoutsFlights(settings.avia_api_key) if settings.avia_api_key else None
-    return CombinedTransport(flights, MockTrains())
+    if settings.avia_api_key:
+        return TravelpayoutsFlights(settings.avia_api_key)
+    return NoTransport()
 
 
 def get_weather() -> WeatherProvider:

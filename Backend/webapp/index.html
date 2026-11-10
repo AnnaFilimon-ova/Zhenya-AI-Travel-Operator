@@ -31,6 +31,7 @@
   <link rel="stylesheet" href="/static/css/home.css">
   <link rel="stylesheet" href="/static/css/hero.css">
   <link rel="stylesheet" href="/static/css/progress.css">
+  <link rel="stylesheet" href="/static/css/search.css">
   <link rel="stylesheet" href="/static/css/polish.css">
   <link rel="preload" as="image" href="/static/zhenya-logo.webp">
 </head>
@@ -130,6 +131,9 @@
       <label class="field"><span data-i18n="profile.occupation">Чем занимаешься</span>
         <select id="occupation"></select>
       </label>
+      <label class="field"><span data-i18n="profile.homeCity">Откуда обычно летишь</span>
+        <input type="text" id="home_city" maxlength="60" placeholder="Москва" data-i18n-placeholder="profile.homeCityPlaceholder">
+      </label>
     </div>
 
     <div class="card">
@@ -158,6 +162,10 @@
     <p class="hint" style="margin: -6px 0 14px;" data-i18n="nearby.about">Что посмотреть и где поесть на месте. Пока работает для городов России.</p>
     <div class="card">
       <button class="save" id="nearby-locate" type="button" data-i18n="nearby.locate">Определить, где я</button>
+      <label class="field" style="margin-top: 14px;"><span data-i18n="nearby.search">Найти город или место</span>
+        <input id="nearby-q" type="text" autocomplete="off" autocapitalize="words" spellcheck="false" maxlength="80" data-i18n-placeholder="nearby.searchPlaceholder" placeholder="Например: Париж, Тбилиси, Токио">
+      </label>
+      <div class="suggest" id="nearby-suggest" hidden></div>
       <label class="field" style="margin-top: 14px;"><span data-i18n="nearby.orCity">Или выбери город</span>
         <select id="nearby-city">
           <option value="" data-i18n="nearby.noCity">Не выбран</option>

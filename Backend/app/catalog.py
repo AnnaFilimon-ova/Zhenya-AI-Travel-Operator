@@ -117,7 +117,8 @@ async def search_catalog(
     if min_stars:
         query = query.where(Hotel.stars >= min_stars)
     if name_query:
-        query = query.where(Hotel.name.ilike(f"%{name_query.strip()}%"))
+        pattern = name_query.strip().replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        query = query.where(Hotel.name.ilike(f"%{pattern}%", escape="\\"))
     if only_confirmed and want_pets:
         query = query.where(Hotel.pets.is_(True))
     if only_confirmed and want_accessible:

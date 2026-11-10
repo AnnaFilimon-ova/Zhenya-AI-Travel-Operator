@@ -52,7 +52,16 @@ def test_validation(monkeypatch):
     assert client.get("/api/nearby", params={"category": "zzz", "city": "Казань"}).status_code == 400
     assert client.get("/api/nearby", params={"city": "Атлантида"}).status_code == 400
     assert client.get("/api/nearby").status_code == 400                                   # нет места
-    assert client.get("/api/nearby", params={"lat": 48.85, "lon": 2.35}).status_code == 400  # Париж, не Россия
+    assert client.get("/api/nearby", params={"lat": 91, "lon": 2.35}).status_code == 422
+    assert client.get("/api/nearby", params={"lat": 48.85, "lon": 181}).status_code == 422
+
+
+def test_places_work_outside_russia(monkeypatch):
+    places = FakePlaces()
+    client = make_client(monkeypatch, places)
+    r = client.get("/api/nearby", params={"category": "food", "lat": 48.85, "lon": 2.35})
+    assert r.status_code == 200
+    assert places.calls[0][1:3] == (48.85, 2.35)
 
 
 def test_unavailable_source_gives_503(monkeypatch):

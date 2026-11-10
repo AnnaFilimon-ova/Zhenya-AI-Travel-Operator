@@ -3,6 +3,7 @@ from datetime import date, timedelta
 from statistics import median
 
 from app.geo import CITY_CENTERS
+from app.geocode import GeocodeError, resolve_center
 from app.providers.base import ProviderUnavailable
 from app.providers.registry import get_hotels, get_weather
 
@@ -22,9 +23,17 @@ def parse_dates(start_date: str, end_date: str) -> tuple[date, date]:
 
 async def _one(city: str, start: date, end: date) -> dict:
     result: dict = {"city": city}
+    in_catalog = city in CITY_CENTERS
     center = CITY_CENTERS.get(city)
     if center is None:
-        return {**result, "error": "город не из каталога"}
+        try:
+            resolved = await resolve_center(city)
+        except GeocodeError:
+            return {**result, "error": "поиск города сейчас недоступен"}
+        if resolved is None:
+            return {**result, "error": "такой город не найден"}
+        center = (resolved[0], resolved[1])
+        result = {"city": resolved[2]}
 
     async def weather():
         try:
@@ -40,6 +49,8 @@ async def _one(city: str, start: date, end: date) -> dict:
             "typical_price_per_night_est": round(median(values) / 100) * 100 if values else None,
         }
 
+    if not in_catalog:
+        return {**result, "weather": await weather(), "note": "каталога жилья по этому городу нет, цены не оцениваются"}
     weather_result, price_result = await asyncio.gather(weather(), prices())
     return {**result, "weather": weather_result, **price_result}
 

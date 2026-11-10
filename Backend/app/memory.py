@@ -1,9 +1,13 @@
+from datetime import datetime, timedelta, timezone
+
 from sqlalchemy import delete, select
 
 from app.db import SessionLocal
 from app.models import ChatMessage
 
 HISTORY_LIMIT = 30
+KEEP_PER_USER = 200
+KEEP_DAYS = 30
 
 
 async def save_exchange(
@@ -33,6 +37,35 @@ async def save_exchange(
             )
         )
         await session.commit()
+        await _trim(session, telegram_id)
+
+
+async def _trim(session, telegram_id: int, keep: int | None = None) -> None:
+    keep = KEEP_PER_USER if keep is None else keep
+    boundary = (
+        await session.execute(
+            select(ChatMessage.id)
+            .where(ChatMessage.telegram_id == telegram_id)
+            .order_by(ChatMessage.id.desc())
+            .offset(keep)
+            .limit(1)
+        )
+    ).scalar_one_or_none()
+    if boundary is not None:
+        await session.execute(
+            delete(ChatMessage).where(
+                ChatMessage.telegram_id == telegram_id, ChatMessage.id <= boundary
+            )
+        )
+        await session.commit()
+
+
+async def purge_old_messages(days: int = KEEP_DAYS) -> int:
+    cutoff = datetime.now(timezone.utc) - timedelta(days=days)
+    async with SessionLocal() as session:
+        result = await session.execute(delete(ChatMessage).where(ChatMessage.created_at < cutoff))
+        await session.commit()
+        return result.rowcount or 0
 
 
 async def load_history(telegram_id: int, limit: int = HISTORY_LIMIT) -> list[dict]:

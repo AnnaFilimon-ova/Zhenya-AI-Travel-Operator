@@ -20,9 +20,9 @@ PLANE = {
     "depart_at": "2026-12-15T09:15:00+03:00", "duration_min": 230, "price_rub": 4199, "transfers": 0,
     "url": "https://www.aviasales.ru/search/MOW1512AER1",
 }
-TRAIN = {
-    "id": "train-Москва-Сочи-coupe", "mode": "train", "origin": "Москва", "destination": "Сочи",
-    "depart_at": None, "duration_min": 1700, "price_rub": 9000, "transfers": 0, "car_key": "coupe", "url": "",
+PLANE_2 = {
+    "id": "MOW-TBS-2026-12-20-9000", "mode": "plane", "origin": "MOW", "destination": "TBS",
+    "depart_at": None, "duration_min": 200, "price_rub": 9000, "transfers": 1, "url": "",
 }
 
 
@@ -53,10 +53,10 @@ def test_add_list_and_no_duplicates(db):
     assert first["already"] is False and again["already"] is True
     assert first["name"] == "Москва → Сочи" and first["subtotal"] == 4199 and first["type"] == "ticket"
     assert first["id"] == f"t{first['ticket_id']}"
-    run(tickets.add_ticket(100, TRAIN))
+    run(tickets.add_ticket(100, PLANE_2))
     items = run(tickets.list_tickets(100))
-    assert [i["mode"] for i in items] == ["plane", "train"]
-    assert items[1]["car_key"] == "coupe" and items[1]["depart_at"] is None
+    assert [i["mode"] for i in items] == ["plane", "plane"]
+    assert items[1]["depart_at"] is None and items[1]["transfers"] == 1
 
 
 def test_tickets_belong_to_their_owner(db):
@@ -69,7 +69,7 @@ def test_tickets_belong_to_their_owner(db):
 
 def test_unknown_user_and_bad_options_are_rejected(db):
     assert run(tickets.add_ticket(999, PLANE)) is None
-    for bad in ({**PLANE, "price_rub": -1}, {**PLANE, "mode": "bus"}, {**PLANE, "id": ""}, {**PLANE, "price_rub": True}):
+    for bad in ({**PLANE, "price_rub": -1}, {**PLANE, "mode": "bus"}, {**PLANE, "mode": "train"}, {**PLANE, "id": ""}, {**PLANE, "price_rub": True}):
         assert run(tickets.add_ticket(100, bad)) is None
 
 
@@ -82,7 +82,7 @@ def test_only_https_links_are_kept(db):
 
 def test_clear_tickets(db):
     run(tickets.add_ticket(100, PLANE))
-    run(tickets.add_ticket(200, TRAIN))
+    run(tickets.add_ticket(200, PLANE_2))
 
     async def clear():
         async with tickets.SessionLocal() as session:

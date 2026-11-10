@@ -2,6 +2,7 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.api.auth import current_user
+from app.geocode import GeocodeError, search_places
 from app.interests import suggested_categories
 from app.nearby import ALLOWED_RADIUS, CATEGORIES, CITY_CENTERS
 from app.profile import get_profile
@@ -34,12 +35,25 @@ async def cities() -> dict:
     return {"cities": list(CITY_CENTERS)}
 
 
+@router.get("/geocode")
+async def geocode(
+    q: str = Query(min_length=2, max_length=80),
+    lang: str = "ru",
+    tg_user: dict = Depends(current_user),
+) -> dict:
+    try:
+        results = await search_places(q, lang)
+    except GeocodeError:
+        raise HTTPException(status_code=503, detail="geocoder unavailable")
+    return {"results": results}
+
+
 @router.get("/nearby")
 async def nearby(
     category: str = "food",
     radius: int = 1000,
-    lat: float | None = Query(default=None),
-    lon: float | None = Query(default=None),
+    lat: float | None = Query(default=None, ge=-90, le=90),
+    lon: float | None = Query(default=None, ge=-180, le=180),
     city: str | None = None,
     tg_user: dict = Depends(current_user),
 ) -> dict:
@@ -53,10 +67,6 @@ async def nearby(
         lat, lon = CITY_CENTERS[city]
     if lat is None or lon is None:
         raise HTTPException(status_code=400, detail="need lat/lon or city")
-    # Проект работает только по России.
-    if not (41 <= lat <= 82 and 19 <= lon <= 180):
-        raise HTTPException(status_code=400, detail="outside Russia")
-
     profile = await get_profile(tg_user["id"])
     try:
         result = await get_places().search(

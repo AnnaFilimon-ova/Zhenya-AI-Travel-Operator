@@ -3,7 +3,7 @@ from sqlalchemy import text
 from app.db import SessionLocal
 from app.geo import resolve_city
 
-MODES = ("plane", "train")
+MODES = ("plane",)
 
 COLUMNS = "id, ticket_key, mode, origin, destination, depart_at, duration_min, transfers, car_key, url, price_rub"
 

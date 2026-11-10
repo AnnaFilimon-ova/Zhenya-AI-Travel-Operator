@@ -12,7 +12,7 @@ def clean():
 
 OPTIONS = [
     {"id": "MOW-AER-2026-12-15-4199", "mode": "plane", "origin": "MOW", "destination": "AER", "price_rub": 4199},
-    {"id": "train-Москва-Сочи-coupe", "mode": "train", "origin": "Москва", "destination": "Сочи", "price_rub": 9000},
+    {"id": "MOW-AER-2026-12-20-9000", "mode": "plane", "origin": "MOW", "destination": "AER", "price_rub": 9000},
 ]
 
 
@@ -52,7 +52,7 @@ def test_keyboard_has_ticket_buttons_and_cart_button(monkeypatch):
     keyboard = handler.offered_keyboard([], tickets)
     texts = [row[0].text for row in keyboard.inline_keyboard]
     assert texts[0].startswith("➕ ✈️ Москва → Сочи") and "4199" in texts[0]
-    assert texts[1].startswith("➕ 🚆") and texts[-1] == "🛒 Открыть корзину"
+    assert texts[1].startswith("➕ ✈️") and "9000" in texts[1] and texts[-1] == "🛒 Открыть корзину"
     callbacks = [row[0].callback_data for row in keyboard.inline_keyboard if row[0].callback_data]
     assert all(c.startswith("tk:") and len(c.encode()) <= 64 for c in callbacks)
     assert handler.offered_keyboard([], []) is None

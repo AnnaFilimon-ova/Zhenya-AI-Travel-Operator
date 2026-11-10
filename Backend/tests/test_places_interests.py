@@ -82,12 +82,31 @@ def test_city_places_for_agent():
     assert result["total_found"] == 25 and "сохранённая копия" in result["note"]
 
 
-def test_city_places_errors_are_explained_to_the_agent():
+def test_city_places_errors_are_explained_to_the_agent(monkeypatch):
+    from app import city_places
+
+    async def not_found(name):
+        return None
+
+    monkeypatch.setattr(city_places, "resolve_center", not_found)
     registry.override("places", FakePlaces())
-    assert "available_cities" in run(places_in_city("Атлантида", "gothic"))
+    assert "error" in run(places_in_city("Атлантида", "gothic"))
     assert "categories" in run(places_in_city("Москва", "zzz"))
     registry.override("places", FakePlaces(error=True))
     assert run(places_in_city("Москва", "gothic"))["places"] == []
+
+
+def test_city_places_work_for_any_city_in_the_world(monkeypatch):
+    from app import city_places
+
+    async def paris(name):
+        return (48.8566, 2.3522, "Париж, Франция")
+
+    monkeypatch.setattr(city_places, "resolve_center", paris)
+    fake = FakePlaces()
+    registry.override("places", fake)
+    result = run(places_in_city("Paris", "sights"))
+    assert result["city"] == "Париж, Франция" and fake.calls[0][1:3] == (48.86, 2.35)
 
 
 def test_agent_tool_wrapper():

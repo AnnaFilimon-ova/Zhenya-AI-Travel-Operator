@@ -37,8 +37,9 @@ def _item_dict(item: CartItem, hotel: Hotel) -> dict:
     }
 
 
-async def add_to_cart(telegram_id: int, hotel_id: int) -> dict | None:
+async def add_to_cart(telegram_id: int, hotel_id: int, nights: int = 1) -> dict | None:
     """Добавляет отель в корзину. Повторное добавление ничего не дублирует."""
+    nights = max(1, min(int(nights), MAX_NIGHTS))
     async with SessionLocal() as session:
         user_id = await _user_id(session, telegram_id)
         hotel = await session.get(Hotel, hotel_id)
@@ -52,8 +53,11 @@ async def add_to_cart(telegram_id: int, hotel_id: int) -> dict | None:
             )
         ).scalar_one_or_none()
         already = item is not None
+        if item is not None and nights != 1 and item.nights != nights:
+            item.nights = nights
+            await session.commit()
         if item is None:
-            item = CartItem(user_id=user_id, hotel_id=hotel_id, nights=1)
+            item = CartItem(user_id=user_id, hotel_id=hotel_id, nights=nights)
             session.add(item)
             await session.commit()
             await session.refresh(item)

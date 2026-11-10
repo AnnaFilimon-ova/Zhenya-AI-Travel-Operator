@@ -5,16 +5,11 @@ from datetime import date, timedelta
 import httpx
 import pytest
 
+from app import iata
 from app.geo import resolve_iata
 from app.providers import registry, transport
 from app.providers.base import ProviderUnavailable
-from app.providers.transport import (
-    CombinedTransport,
-    MockTrains,
-    NoTransport,
-    TravelpayoutsFlights,
-    compare,
-)
+from app.providers.transport import NoTransport, TravelpayoutsFlights, compare
 
 SECRET = "super-secret-token"
 FUTURE = (date.today() + timedelta(days=30)).isoformat()
@@ -26,6 +21,11 @@ ROWS = [
     {"origin": "MOW", "destination": "LED", "depart_date": FUTURE, "value": None},
     {"origin": "MOW", "destination": "LED", "depart_date": FUTURE, "value": 9900, "number_of_changes": 2},
 ]
+
+
+@pytest.fixture(autouse=True)
+def clean_iata_cache(monkeypatch):
+    monkeypatch.setattr(iata, "_cache", {})
 
 
 def mock_http(monkeypatch, handler):
@@ -65,6 +65,33 @@ def test_search_sorts_filters_and_formats(monkeypatch):
     assert res["estimate"] is True and "кэш" in res["note"]
     assert seen["origin"] == "MOW" and seen["destination"] == "LED"
     assert seen["period_type"] == "day" and seen["beginning_of_period"] == FUTURE
+    assert res["comparison"]["cheapest_id"] == first["id"]
+    assert res["comparison"]["fastest_id"] == first["id"]
+
+
+def test_worldwide_city_names(monkeypatch):
+    seen = {}
+
+    def handler(request):
+        seen.update(dict(request.url.params))
+        return httpx.Response(200, json={"success": True, "data": [{"depart_date": FUTURE, "value": 12000}]})
+
+    mock_http(monkeypatch, handler)
+    res = asyncio.run(TravelpayoutsFlights(SECRET).search("Москва", "Тбилиси", FUTURE))
+    assert seen["destination"] == "TBS" and res["options"][0]["destination"] == "TBS"
+    assert res["options"][0]["url"].endswith("TBS1")
+
+
+def test_unknown_city_uses_autocomplete(monkeypatch):
+    def handler(request):
+        if request.url.host == "autocomplete.travelpayouts.com":
+            return httpx.Response(200, json=[{"code": "XYZ", "name": "Невидимка"}])
+        assert request.url.params["destination"] == "XYZ"
+        return httpx.Response(200, json={"success": True, "data": [{"depart_date": FUTURE, "value": 1000}]})
+
+    mock_http(monkeypatch, handler)
+    res = asyncio.run(TravelpayoutsFlights(SECRET).search("Москва", "Невидимка", FUTURE))
+    assert res["options"][0]["price_rub"] == 1000
 
 
 def test_limit_five_options(monkeypatch):
@@ -76,8 +103,7 @@ def test_limit_five_options(monkeypatch):
 
 @pytest.mark.parametrize(
     "args",
-    [("Атлантида", "Москва", ""), ("Москва", "Москва", ""), ("Москва", "Сочи", "вчера"),
-     ("Москва", "Сочи", "2020-01-01")],
+    [("Москва", "Москва", ""), ("Москва", "Сочи", "вчера"), ("Москва", "Сочи", "2020-01-01")],
 )
 def test_bad_input_returns_empty_without_calling_api(monkeypatch, args):
     def boom(request):
@@ -85,6 +111,16 @@ def test_bad_input_returns_empty_without_calling_api(monkeypatch, args):
 
     mock_http(monkeypatch, boom)
     res = asyncio.run(TravelpayoutsFlights(SECRET).search(*args))
+    assert res["options"] == [] and res["note"]
+
+
+def test_unresolved_city_does_not_call_flights_api(monkeypatch):
+    def handler(request):
+        assert request.url.host == "autocomplete.travelpayouts.com"
+        return httpx.Response(200, json=[])
+
+    mock_http(monkeypatch, handler)
+    res = asyncio.run(TravelpayoutsFlights(SECRET).search("Атлантида", "Москва", ""))
     assert res["options"] == [] and res["note"]
 
 
@@ -109,9 +145,9 @@ def test_api_error_payload_is_unavailable(monkeypatch):
 
 def test_registry_picks_provider_by_key(monkeypatch):
     monkeypatch.setattr("app.providers.registry.settings.avia_api_key", "")
-    assert registry.get_transport()._flights is None
+    assert isinstance(registry.get_transport(), NoTransport)
     monkeypatch.setattr("app.providers.registry.settings.avia_api_key", SECRET)
-    assert isinstance(registry.get_transport()._flights, TravelpayoutsFlights)
+    assert isinstance(registry.get_transport(), TravelpayoutsFlights)
 
 
 def test_no_transport_is_honest():
@@ -147,9 +183,11 @@ def test_agent_tool(monkeypatch):
         assert Fake.called == ("Москва", "Сочи", FUTURE, {"max_price": 8000, "mode": "any"})
         service.search_transport_for_agent("Москва", "Сочи")
         assert Fake.called[3] == {"max_price": None, "mode": "any"}
+        assert "error" in service.search_transport_for_agent("Москва", "Сочи", mode="train")
         registry.override("transport", Down())
         assert service.search_transport_for_agent("Москва", "Сочи")["options"] == []
     finally:
+        registry.reset()
         service._loop = None
         loop.call_soon_threadsafe(loop.stop)
 
@@ -158,73 +196,17 @@ def plane(price, minutes, oid="p"):
     return {"id": oid, "mode": "plane", "price_rub": price, "duration_min": minutes}
 
 
-def train(price, minutes, oid="t"):
-    return {"id": oid, "mode": "train", "price_rub": price, "duration_min": minutes}
+def test_compare_cheapest_and_fastest():
+    res = compare([plane(6000, 230, "a"), plane(3500, 400, "b"), {"id": "c", "mode": "plane", "price_rub": 9000}])
+    assert res["cheapest_id"] == "b" and res["fastest_id"] == "a"
 
 
-def test_mock_trains_estimate_from_distance():
-    res = asyncio.run(MockTrains().search("Москва", "Санкт-Петербург", FUTURE))
-    assert [o["car_class"] for o in res["options"]] == ["плацкарт", "купе"]
-    first, second = res["options"]
-    assert first["mode"] == "train" and 500 < first["duration_min"] < 900
-    assert first["price_rub"] < second["price_rub"]
-    assert "не расписание" in res["note"]
-
-
-def test_mock_trains_respect_budget_and_unknown_cities():
-    cheap = asyncio.run(MockTrains().search("MOW", "LED", max_price=2500))
-    assert [o["car_class"] for o in cheap["options"]] == ["плацкарт"]
-    assert asyncio.run(MockTrains().search("Москва", "Атлантида"))["options"] == []
-    assert asyncio.run(MockTrains().search("Москва", "Сочи", mode="plane"))["options"] == []
-
-
-def test_compare_prefers_plane_when_much_faster():
-    res = compare([plane(6000, 230), train(3500, 1400)])
-    assert res["recommended_mode"] == "plane" and res["reason"] == "much_faster"
-    assert res["time_saved_by_plane_min"] > 240
-
-
-def test_compare_prefers_train_when_close_in_time():
-    res = compare([plane(5000, 90), train(1900, 540)])
-    assert res["recommended_mode"] == "plane"
-    res = compare([plane(9000, 90), train(1900, 250)])
-    assert res["recommended_mode"] == "train" and res["reason"] == "cheaper_and_close_in_time"
-
-
-def test_compare_single_mode_and_empty():
-    assert compare([train(1900, 540)])["reason"] == "only_option"
+def test_compare_without_durations_and_empty():
+    assert compare([{"id": "x", "mode": "plane", "price_rub": 100}])["fastest_id"] is None
     assert compare([]) is None
 
 
-def test_combined_merges_modes(monkeypatch):
-    mock_http(monkeypatch, ok(ROWS))
-    both = asyncio.run(CombinedTransport(TravelpayoutsFlights(SECRET), MockTrains()).search("Москва", "Санкт-Петербург", FUTURE))
-    assert {o["mode"] for o in both["options"]} == {"plane", "train"}
-    assert both["comparison"]["recommended_mode"] in ("plane", "train")
-
-
-def test_combined_survives_flight_outage(monkeypatch):
-    mock_http(monkeypatch, lambda request: httpx.Response(500))
-    down = asyncio.run(CombinedTransport(TravelpayoutsFlights(SECRET), MockTrains()).search("Москва", "Санкт-Петербург", FUTURE))
-    assert {o["mode"] for o in down["options"]} == {"train"}
-    assert "недоступны" in down["note"]
-
-
-def test_combined_without_flights_key_still_gives_trains():
-    res = asyncio.run(CombinedTransport(None, MockTrains()).search("Москва", "Казань"))
-    assert res["options"] and "Авиабилеты не подключены" in res["note"]
-
-
-def test_flights_carry_aviasales_link_and_trains_carry_car_key(monkeypatch):
+def test_flights_carry_aviasales_link(monkeypatch):
     mock_http(monkeypatch, ok([{"origin": "MOW", "destination": "LED", "depart_date": "2030-01-15T09:00:00+03:00", "value": 4000}]))
-    res = asyncio.run(CombinedTransport(TravelpayoutsFlights(SECRET), MockTrains()).search("Москва", "Санкт-Петербург"))
-    plane_option = next(o for o in res["options"] if o["mode"] == "plane")
-    assert plane_option["url"] == "https://www.aviasales.ru/search/MOW1501LED1"
-    assert {o["car_key"] for o in res["options"] if o["mode"] == "train"} == {"platzkart", "coupe"}
-
-
-def test_combined_shows_at_most_three_flights(monkeypatch):
-    rows = [{"depart_date": FUTURE, "value": 1000 + i} for i in range(8)]
-    mock_http(monkeypatch, ok(rows))
-    res = asyncio.run(CombinedTransport(TravelpayoutsFlights(SECRET), MockTrains()).search("Москва", "Санкт-Петербург"))
-    assert len([o for o in res["options"] if o["mode"] == "plane"]) == 3
+    res = asyncio.run(TravelpayoutsFlights(SECRET).search("Москва", "Санкт-Петербург"))
+    assert res["options"][0]["url"] == "https://www.aviasales.ru/search/MOW1501LED1"

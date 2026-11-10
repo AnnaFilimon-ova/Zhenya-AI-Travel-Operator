@@ -19,10 +19,7 @@ router = Router()
 
 
 def ticket_title(ticket: dict) -> str:
-    icon = "✈️" if ticket["mode"] == "plane" else "🚆"
-    title = f"{icon} {ticket['origin']} → {ticket['destination']} · {ticket['price_rub']} ₽"
-    if ticket.get("car_class"):
-        title += f" · {ticket['car_class']}"
+    title = f"✈️ {ticket['origin']} → {ticket['destination']} · {ticket['price_rub']} ₽"
     return title[:60]
 
 
@@ -36,8 +33,14 @@ def offered_keyboard(hotels: list[dict], tickets: list[dict] | None = None) -> I
         name = hotel["name"]
         if len(name) > 28:
             name = name[:27] + "…"
-        title = f"➕ {name} · ≈{hotel['price']} ₽"
-        rows.append([InlineKeyboardButton(text=title, callback_data=f"add:{hotel['id']}")])
+        nights = hotel.get("nights") or 1
+        if nights > 1:
+            title = f"➕ {name} · {nights} н. ≈{hotel['price'] * nights} ₽"
+            data = f"add:{hotel['id']}:{nights}"
+        else:
+            title = f"➕ {name} · ≈{hotel['price']} ₽"
+            data = f"add:{hotel['id']}"
+        rows.append([InlineKeyboardButton(text=title, callback_data=data)])
     for ticket in tickets:
         rows.append([InlineKeyboardButton(text="➕ " + ticket_title(ticket), callback_data=f"tk:{ticket['token']}")])
     # Telegram принимает для мини-аппа только https-адреса, иначе сообщение не отправится.
@@ -56,12 +59,14 @@ def offered_keyboard(hotels: list[dict], tickets: list[dict] | None = None) -> I
 @router.callback_query(F.data.startswith("add:"))
 async def on_add(callback: CallbackQuery) -> None:
     try:
-        hotel_id = int(callback.data.split(":", 1)[1])
-    except ValueError:
+        parts = callback.data.split(":")
+        hotel_id = int(parts[1])
+        nights = int(parts[2]) if len(parts) > 2 else 1
+    except (ValueError, IndexError):
         await callback.answer("Не получилось добавить", show_alert=True)
         return
 
-    item = await add_to_cart(callback.from_user.id, hotel_id)
+    item = await add_to_cart(callback.from_user.id, hotel_id, nights)
     if item is None:
         await callback.answer("Не получилось добавить. Попробуй /start", show_alert=True)
         return

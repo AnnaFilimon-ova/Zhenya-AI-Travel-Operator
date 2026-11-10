@@ -24,9 +24,12 @@ export function initNearby() {
   loadCategories();
 
   $("nearby-locate").addEventListener("click", locate);
+  initSearch();
   $("nearby-city").addEventListener("change", () => {
     const city = $("nearby-city").value;
     if (!city) return;
+    $("nearby-q").value = "";
+    hideSuggest();
     state.city = city;
     state.lat = state.lon = null;
     setStatus(t("nearby.searchingCity", { city: has("city." + city) ? t("city." + city) : city }));
@@ -36,6 +39,79 @@ export function initNearby() {
     if (!state.loaded && state.lat === null && !state.city) showHint();
   });
   showHint();
+}
+
+let searchTimer = 0;
+let searchId = 0;
+
+function hideSuggest() {
+  const box = $("nearby-suggest");
+  box.hidden = true;
+  box.replaceChildren();
+}
+
+function initSearch() {
+  const input = $("nearby-q");
+  input.addEventListener("input", () => {
+    clearTimeout(searchTimer);
+    const q = input.value.trim();
+    if (q.length < 2) {
+      searchId += 1;
+      hideSuggest();
+      return;
+    }
+    searchTimer = setTimeout(() => runSearch(q), 450);
+  });
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") hideSuggest();
+    if (e.key === "Enter") {
+      e.preventDefault();
+      clearTimeout(searchTimer);
+      const q = input.value.trim();
+      if (q.length >= 2) runSearch(q);
+    }
+  });
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest("#nearby-suggest") && e.target !== input) hideSuggest();
+  });
+}
+
+async function runSearch(q) {
+  const id = ++searchId;
+  const box = $("nearby-suggest");
+  try {
+    const { results } = await api("/api/geocode?q=" + encodeURIComponent(q) + "&lang=" + lang());
+    if (id !== searchId) return;
+    box.replaceChildren();
+    if (!Array.isArray(results) || results.length === 0) {
+      box.appendChild(h("small", "suggest-empty", t("nearby.noResults")));
+    }
+    (results || []).forEach((r) => {
+      const item = h("button", "suggest-item");
+      item.type = "button";
+      item.append(iconEl("nearby", 18), h("span", "suggest-text"));
+      const text = item.querySelector(".suggest-text");
+      text.append(h("b", "", r.name), h("small", "", r.label));
+      item.addEventListener("click", () => pickPlace(r));
+      box.appendChild(item);
+    });
+    box.hidden = false;
+  } catch {
+    if (id !== searchId) return;
+    box.replaceChildren(h("small", "suggest-empty", t("nearby.searchFailed")));
+    box.hidden = false;
+  }
+}
+
+function pickPlace(r) {
+  hideSuggest();
+  $("nearby-q").value = r.name;
+  $("nearby-city").value = "";
+  state.lat = r.lat;
+  state.lon = r.lon;
+  state.city = "";
+  setStatus(t("nearby.searchingCity", { city: r.label }));
+  load();
 }
 
 const toOptions = (list) => list.map((c) => [c.key, categoryLabel(c), CATEGORY_ICONS[c.key], c.suggested]);
@@ -95,14 +171,12 @@ function locate() {
   navigator.geolocation.getCurrentPosition(
     (pos) => {
       const { latitude: lat, longitude: lon } = pos.coords;
-      if (lat < 41 || lat > 82 || lon < 19 || lon > 180) {
-        setStatus(t("nearby.notRussia"));
-        return;
-      }
       state.lat = lat;
       state.lon = lon;
       state.city = "";
       $("nearby-city").value = "";
+      $("nearby-q").value = "";
+      hideSuggest();
       setStatus(t("nearby.showingNear"));
       load();
     },

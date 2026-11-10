@@ -61,6 +61,7 @@ class ProfileIn(BaseModel):
     travel_types: list[str] = Field(default_factory=list, max_length=20)
     food_prefs: list[str] = Field(default_factory=list, max_length=20)
     favorite_places: str = Field(default="", max_length=500)
+    home_city: str = Field(default="", max_length=60)
 
 
 async def get_or_create_user(session, tg_user: dict) -> User:
@@ -98,6 +99,7 @@ async def get_profile(tg_user: dict = Depends(current_user)) -> dict:
             "display_name": user.display_name or user.first_name or "",
             "gender": user.gender or "",
             "occupation": user.occupation or "",
+            "home_city": user.home_city or "",
             "with_pets": prefs.with_pets if prefs else False,
             "accessible": prefs.accessible if prefs else False,
             "travel_types": normalize_travel(prefs.travel_types if prefs else []),
@@ -119,6 +121,7 @@ async def save_profile(
         user.display_name = body.display_name.strip() or None
         user.gender = body.gender or None
         user.occupation = body.occupation or None
+        user.home_city = " ".join(body.home_city.split()) or None
 
         stmt = insert(UserPreferences).values(
             user_id=user.id,

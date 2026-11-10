@@ -34,6 +34,7 @@ function collect() {
     display_name: $("display_name").value,
     gender: $("gender").value,
     occupation: $("occupation").value,
+    home_city: $("home_city").value,
     with_pets: $("with_pets").checked,
     accessible: $("accessible").checked,
     travel_types: selectedChips("travel_types"),
@@ -46,6 +47,7 @@ function fill(p) {
   $("display_name").value = p.display_name;
   $("gender").value = p.gender;
   $("occupation").value = p.occupation;
+  $("home_city").value = p.home_city || "";
   $("with_pets").checked = p.with_pets;
   $("accessible").checked = p.accessible;
   $("favorite_places").value = p.favorite_places;

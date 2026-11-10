@@ -5,7 +5,7 @@ from app.providers import registry
 from app.providers.base import ProviderUnavailable
 from app.providers.hotels import OsmCatalogHotels
 from app.providers.places import OverpassPlaces
-from app.providers.transport import CombinedTransport, NoTransport
+from app.providers.transport import NoTransport, TravelpayoutsFlights
 
 
 class FakeHotels:
@@ -22,7 +22,9 @@ def test_defaults_are_real_providers(monkeypatch):
     monkeypatch.setattr("app.providers.registry.settings.avia_api_key", "")
     assert isinstance(registry.get_hotels(), OsmCatalogHotels)
     assert isinstance(registry.get_places(), OverpassPlaces)
-    assert isinstance(registry.get_transport(), CombinedTransport)
+    assert isinstance(registry.get_transport(), NoTransport)
+    monkeypatch.setattr("app.providers.registry.settings.avia_api_key", "key")
+    assert isinstance(registry.get_transport(), TravelpayoutsFlights)
 
 
 def test_override_replaces_provider_and_reset_restores():

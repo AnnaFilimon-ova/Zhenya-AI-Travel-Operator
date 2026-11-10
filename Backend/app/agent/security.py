@@ -72,8 +72,8 @@ def validate_transport_search(
     max_price: int | None,
     mode: str = "any",
 ) -> None:
-    if mode not in ("any", "plane", "train"):
-        raise ValueError("mode must be any, plane or train")
+    if mode not in ("any", "plane"):
+        raise ValueError("mode must be any or plane")
 
     for place in (origin, destination):
         if not isinstance(place, str) or not place.strip() or len(place) > 100:

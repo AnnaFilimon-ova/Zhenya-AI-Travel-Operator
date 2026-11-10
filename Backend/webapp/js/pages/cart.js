@@ -122,9 +122,8 @@ function renderTicket(item) {
   const title = h("div", "cart-title");
   const name = h("b", "with-ico");
   const city = (value) => (has("city." + value) ? t("city." + value) : value);
-  name.append(iconEl(item.mode === "train" ? "train" : "plane", 18), `${city(item.origin)} → ${city(item.destination)}`);
-  const carLabel = item.car_key && has("carclass." + item.car_key) ? t("carclass." + item.car_key) : "";
-  title.append(name, h("small", "", [t("ticket." + item.mode), carLabel, dateText(item.depart_at)].filter(Boolean).join(" · ")));
+  name.append(iconEl("plane", 18), `${city(item.origin)} → ${city(item.destination)}`);
+  title.append(name, h("small", "", [t("ticket.plane"), dateText(item.depart_at)].filter(Boolean).join(" · ")));
   const del = h("button", "icon-btn");
   del.type = "button";
   del.setAttribute("aria-label", t("ticket.remove"));
@@ -141,7 +140,6 @@ function renderTicket(item) {
   row.append(left, price);
   card.append(head, row);
 
-  if (item.mode === "train") card.appendChild(h("small", "cart-note", t("ticket.trainNote")));
   if (/^https:\/\//.test(item.url || "")) {
     const buy = h("button", "idea-btn with-ico");
     buy.type = "button";

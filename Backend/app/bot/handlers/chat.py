@@ -16,6 +16,7 @@ from aiogram.types import FSInputFile
 from app.agent.voice import transcribe_audio, synthesize_speech
 from app.config import settings
 
+MAX_USER_TEXT = 2000
 router = Router()
 log = logging.getLogger(__name__)
 
@@ -36,6 +37,9 @@ async def cmd_reset(message: Message) -> None:
 
 @router.message(F.text, ~F.text.startswith("/"))
 async def handle_text(message: Message) -> None:
+    if len(message.text) > MAX_USER_TEXT:
+        await message.answer("Сообщение слишком длинное, напиши покороче.")
+        return
     await message.bot.send_chat_action(message.chat.id, "typing")
     try:
         answer = await ask(message.from_user.id, message.text)

@@ -49,7 +49,11 @@ def test_parse_dates_defaults_and_order():
         overview.parse_dates("завтра", "")
 
 
-def test_overview_combines_weather_and_price_per_city():
+def test_overview_combines_weather_and_price_per_city(monkeypatch):
+    async def not_found(name):
+        return None
+
+    monkeypatch.setattr(overview, "resolve_center", not_found)
     weather = FakeWeather()
     registry.override("hotels", FakeHotels())
     registry.override("weather", weather)

@@ -2,9 +2,9 @@ class OsmCatalogHotels:
     name = "osm_catalog"
 
     async def search(self, city: str, **filters) -> dict:
-        from app.catalog import search_catalog
+        from app.hotels_world import search_near
 
-        return await search_catalog(city=city, **filters)
+        return await search_near(city=city, **filters)
 
     async def cities(self) -> list[dict]:
         from app.catalog import list_cities
