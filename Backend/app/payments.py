@@ -1,11 +1,3 @@
-"""Провайдеры оплаты. Агент и корзина знают только интерфейс PaymentProvider.
-
-Сейчас два варианта:
-- DemoPayments: имитация, заказ создаётся сразу (когда токен ЮKassa не задан);
-- TelegramInvoicePayments: счёт Telegram Payments через ЮKassa. С тестовым токеном
-  (формат 123456:TEST:789) деньги не списываются. С боевым токеном те же вызовы работают всерьёз.
-Чтобы подключить другого провайдера, достаточно написать ещё один класс с методом start().
-"""
 import json
 from typing import Protocol
 
@@ -23,7 +15,6 @@ class PaymentProvider(Protocol):
     name: str
 
     async def start(self, telegram_id: int, cart: dict) -> dict:
-        """Начинает оплату непустой корзины. Возвращает словарь для мини-аппа."""
         ...
 
 
@@ -52,7 +43,7 @@ class TelegramInvoicePayments:
         prices = [
             LabeledPrice(
                 label=_label(item)[:60],
-                amount=item["subtotal"] * 100,  # Telegram принимает копейки
+                amount=item["subtotal"] * 100,
             )
             for item in items
         ]

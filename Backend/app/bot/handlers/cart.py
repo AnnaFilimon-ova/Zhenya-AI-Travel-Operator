@@ -1,4 +1,3 @@
-"""Кнопки «добавить в корзину» под ответом бота."""
 from aiogram import F, Router
 from aiogram.types import (
     CallbackQuery,
@@ -24,7 +23,6 @@ def ticket_title(ticket: dict) -> str:
 
 
 def offered_keyboard(hotels: list[dict], tickets: list[dict] | None = None) -> InlineKeyboardMarkup | None:
-    """Клавиатура: по кнопке на каждое предложенное место и кнопка корзины."""
     tickets = tickets or []
     if not hotels and not tickets:
         return None
@@ -43,7 +41,6 @@ def offered_keyboard(hotels: list[dict], tickets: list[dict] | None = None) -> I
         rows.append([InlineKeyboardButton(text=title, callback_data=data)])
     for ticket in tickets:
         rows.append([InlineKeyboardButton(text="➕ " + ticket_title(ticket), callback_data=f"tk:{ticket['token']}")])
-    # Telegram принимает для мини-аппа только https-адреса, иначе сообщение не отправится.
     if settings.webapp_url.startswith("https://"):
         rows.append(
             [
@@ -93,7 +90,6 @@ async def on_add_ticket(callback: CallbackQuery) -> None:
 
 
 async def _check_payment(query: PreCheckoutQuery) -> str | None:
-    """None, если платёж можно принять, иначе текст ошибки для пользователя."""
     parts = (query.invoice_payload or "").split(":")
     if len(parts) != 3 or parts[0] != "cart":
         return "Не удалось проверить заказ. Оформи его заново в мини-аппе."

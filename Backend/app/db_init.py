@@ -17,7 +17,6 @@ def run_upgrade(revision: str = "head") -> None:
 
 
 async def apply_schema() -> bool:
-    """Применяет миграции Alembic. При ошибке падает: без схемы приложению стартовать нельзя."""
     try:
         await asyncio.to_thread(run_upgrade)
     except Exception:

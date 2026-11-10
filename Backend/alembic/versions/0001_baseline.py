@@ -1,8 +1,3 @@
-"""Начальная схема: повторяет прежний schema.sql, безопасна для уже существующей базы.
-
-Revision ID: 0001
-Revises:
-"""
 from alembic import op
 
 revision = "0001"

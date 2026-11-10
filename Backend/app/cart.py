@@ -1,4 +1,3 @@
-"""Корзина и имитация оплаты. Цены оценочные (см. catalog.estimate_price), оплата не настоящая."""
 import secrets
 import string
 
@@ -38,7 +37,6 @@ def _item_dict(item: CartItem, hotel: Hotel) -> dict:
 
 
 async def add_to_cart(telegram_id: int, hotel_id: int, nights: int = 1) -> dict | None:
-    """Добавляет отель в корзину. Повторное добавление ничего не дублирует."""
     nights = max(1, min(int(nights), MAX_NIGHTS))
     async with SessionLocal() as session:
         user_id = await _user_id(session, telegram_id)
@@ -113,7 +111,6 @@ async def remove_item(telegram_id: int, item_id: int) -> bool:
 
 
 async def list_orders(telegram_id: int, limit: int = 5) -> list[dict]:
-    """Последние оформленные заказы пользователя."""
     async with SessionLocal() as session:
         user_id = await _user_id(session, telegram_id)
         if user_id is None:
@@ -147,11 +144,6 @@ def _new_code() -> str:
 async def checkout(
     telegram_id: int, provider: str = "demo", payment_ref: str | None = None
 ) -> dict | None:
-    """Фиксирует оплаченный заказ и очищает корзину.
-
-    provider: кто принял оплату ("demo" - имитация, "telegram_yookassa" - тестовая ЮKassa).
-    payment_ref: номер платежа у провайдера (для сверки).
-    """
     cart = await get_cart(telegram_id)
     if not cart["items"]:
         return None

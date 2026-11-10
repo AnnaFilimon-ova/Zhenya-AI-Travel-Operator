@@ -1,4 +1,3 @@
-"""API корзины для мини-аппа. Авторизация та же, что у профиля (подпись Telegram)."""
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
@@ -44,7 +43,6 @@ async def delete_item(item_id: int, tg_user: dict = Depends(current_user)) -> di
 
 @router.post("/cart/checkout")
 async def pay(tg_user: dict = Depends(current_user)) -> dict:
-    """Начинает оплату. Режим demo: заказ сразу. Режим invoice: ссылка на счёт Telegram."""
     cart = await get_cart(tg_user["id"])
     if not cart["items"]:
         raise HTTPException(status_code=400, detail="cart is empty")

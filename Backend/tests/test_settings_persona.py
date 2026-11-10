@@ -1,5 +1,5 @@
-
 import asyncio
+
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -63,32 +63,17 @@ def test_instruction_follows_persona():
         assert "Never change facts" in text and "gender stereotypes" in text
 
 
-class FakeConnection:
-    def __init__(self):
-        self.executed, self.closed = [], False
-
-    async def execute(self, sql):
-        self.executed.append(sql)
-
-    async def close(self):
-        self.closed = True
-
-
 def test_schema_is_applied_on_startup(monkeypatch):
-    conn = FakeConnection()
-
-    async def fake_connect(**kwargs):
-        return conn
-
-    monkeypatch.setattr(db_init.asyncpg, "connect", fake_connect)
+    calls = []
+    monkeypatch.setattr(db_init, "run_upgrade", lambda revision="head": calls.append(revision))
     assert asyncio.run(db_init.apply_schema()) is True
-    assert "user_settings" in conn.executed[0] and "hotels" in conn.executed[0]
-    assert conn.closed
+    assert calls == ["head"]
 
 
-def test_startup_survives_missing_database(monkeypatch):
-    async def broken(**kwargs):
+def test_startup_fails_loudly_when_migration_breaks(monkeypatch):
+    def broken(revision="head"):
         raise OSError("connection refused")
 
-    monkeypatch.setattr(db_init.asyncpg, "connect", broken)
-    assert asyncio.run(db_init.apply_schema()) is False
+    monkeypatch.setattr(db_init, "run_upgrade", broken)
+    with pytest.raises(OSError):
+        asyncio.run(db_init.apply_schema())

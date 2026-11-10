@@ -22,7 +22,7 @@ def main(models: list[str]) -> None:
                 )
                 took = time.perf_counter() - started
                 print(f"{model} #{attempt}: {took:.1f} с, ответ: {(response.text or '').strip()[:40]!r}")
-            except Exception as exc:  # noqa: BLE001 — это диагностика, показываем любую ошибку
+            except Exception as exc:
                 took = time.perf_counter() - started
                 print(f"{model} #{attempt}: ошибка через {took:.1f} с: {type(exc).__name__}")
 

@@ -60,7 +60,6 @@ export function initHome() {
   renderHome(null);
 }
 
-// profile — данные из /api/profile (или то, что только что сохранили). null — профиль ещё не загружен.
 export function renderHome(profile) {
   renderGreeting(profile);
   renderBudgetNote(profile);

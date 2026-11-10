@@ -1,4 +1,3 @@
-"""API «Места рядом» для мини-аппа."""
 from fastapi import APIRouter, Depends, HTTPException, Query
 
 from app.api.auth import current_user
@@ -19,7 +18,6 @@ NOTE = (
 
 @router.get("/nearby/categories")
 async def categories(tg_user: dict = Depends(current_user)) -> dict:
-    """Категории мест. Подходящие интересам из профиля помечены и стоят первыми."""
     profile = await get_profile(tg_user["id"])
     suggested = suggested_categories(profile.get("travel_types", []))
     keys = suggested + [k for k in CATEGORIES if k not in suggested]

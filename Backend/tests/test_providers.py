@@ -1,4 +1,3 @@
-"""Подмена источников данных: остальной код не знает, откуда берутся жильё, места и транспорт."""
 import asyncio
 
 from app.providers import registry

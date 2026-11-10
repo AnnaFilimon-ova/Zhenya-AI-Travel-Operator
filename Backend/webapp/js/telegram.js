@@ -1,5 +1,3 @@
-// Обёртка над Telegram WebApp. Вне Telegram (обычный браузер) подставляем заглушку,
-// чтобы страницу можно было разрабатывать без бота.
 const noop = () => {};
 
 export const tg = window.Telegram?.WebApp ?? {

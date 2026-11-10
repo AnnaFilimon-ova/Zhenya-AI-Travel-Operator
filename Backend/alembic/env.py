@@ -3,7 +3,7 @@ import asyncio
 from alembic import context
 from sqlalchemy.ext.asyncio import create_async_engine
 
-import app.models  # noqa: F401
+import app.models
 from app.config import settings
 from app.db import Base
 

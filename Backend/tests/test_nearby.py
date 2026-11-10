@@ -32,11 +32,10 @@ def test_parse_skips_abandoned_nameless_and_duplicates():
          "tags": {"name": "Заброшка", "amenity": "cafe", "abandoned:amenity": "cafe"}},
     ]
     items = n.parse_elements(els, 55.79, 49.12, ["vegan"], True, False)
-    assert [i["name"] for i in items] == ["Веган Кафе", "Парк"]  # по возрастанию расстояния
+    assert [i["name"] for i in items] == ["Веган Кафе", "Парк"]
     first = items[0]
     assert first["address"] == "Баумана, 5"
     assert first["cuisine"] == "веганская, кофе"
-    # отметки из профиля подсвечиваются (match), если совпадают
     assert {b["text"]: b["match"] for b in first["badges"]} == {
         "есть веганское": True, "доступно на коляске": True,
     }
@@ -44,7 +43,7 @@ def test_parse_skips_abandoned_nameless_and_duplicates():
 
 def test_distance_is_sane():
     assert n.distance_m(55.0, 37.0, 55.0, 37.0) == 0
-    assert 110_000 < n.distance_m(55.0, 37.0, 56.0, 37.0) < 112_000  # ~111 км на градус
+    assert 110_000 < n.distance_m(55.0, 37.0, 56.0, 37.0) < 112_000
 
 
 def test_fetch_takes_first_successful_mirror(monkeypatch):
@@ -95,9 +94,9 @@ def test_falls_back_to_saved_copy_and_respects_radius(seed_file):
 
 def test_no_copy_for_far_place_or_missing_category(seed_file):
     with pytest.raises(n.NearbyError):
-        run(n.search_nearby("food", 56.0, 60.0, 1000))  # не рядом ни с одним городом из копии
+        run(n.search_nearby("food", 56.0, 60.0, 1000))
     with pytest.raises(n.NearbyError):
-        run(n.search_nearby("sights", 55.7887, 49.1221, 1000))  # такой категории в копии нет
+        run(n.search_nearby("sights", 55.7887, 49.1221, 1000))
 
 
 def test_items_carry_codes_for_localization():

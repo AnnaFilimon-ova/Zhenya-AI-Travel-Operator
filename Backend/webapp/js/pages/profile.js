@@ -6,7 +6,6 @@ import { t } from "../i18n.js";
 import { react } from "../mascot.js";
 import { initProgress, updateProgress } from "../profile-progress.js";
 
-// onLoad / onSave вызываются с данными профиля, чтобы главная страница могла обновиться.
 export function initProfile({ onLoad, onSave }) {
   renderChips("travel_types", travelTypes(), react);
   renderChips("food_prefs", foodPrefs(), react);

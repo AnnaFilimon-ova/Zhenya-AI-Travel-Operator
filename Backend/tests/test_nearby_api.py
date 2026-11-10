@@ -51,7 +51,7 @@ def test_validation(monkeypatch):
     client = make_client(monkeypatch, FakePlaces())
     assert client.get("/api/nearby", params={"category": "zzz", "city": "Казань"}).status_code == 400
     assert client.get("/api/nearby", params={"city": "Атлантида"}).status_code == 400
-    assert client.get("/api/nearby").status_code == 400                                   # нет места
+    assert client.get("/api/nearby").status_code == 400
     assert client.get("/api/nearby", params={"lat": 91, "lon": 2.35}).status_code == 422
     assert client.get("/api/nearby", params={"lat": 48.85, "lon": 181}).status_code == 422
 

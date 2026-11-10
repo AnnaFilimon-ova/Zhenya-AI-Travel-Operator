@@ -1,6 +1,6 @@
 import { tg, isInTelegram } from "./telegram.js";
 
-const KEY = "zhenya-theme"; // auto | light | dark
+const KEY = "zhenya-theme";
 const HEADER_COLORS = { light: "#ffffff", dark: "#162238" };
 const BG_COLORS = { light: "#f4f7fc", dark: "#0e1626" };
 
@@ -25,7 +25,6 @@ export function applyTheme() {
     tg.setHeaderColor(HEADER_COLORS[theme]);
     tg.setBackgroundColor(BG_COLORS[theme]);
   } catch {
-    /* старые версии Telegram не умеют менять цвета */
   }
   return theme;
 }
@@ -34,7 +33,6 @@ export function setThemePreference(pref) {
   try {
     localStorage.setItem(KEY, pref);
   } catch {
-    /* хранилище может быть недоступно */
   }
   applyTheme();
 }

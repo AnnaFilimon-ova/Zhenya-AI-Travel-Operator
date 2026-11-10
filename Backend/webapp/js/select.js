@@ -1,6 +1,3 @@
-// Свой выпадающий список вместо стандартного <select>.
-// Настоящий <select> остаётся в странице (скрытый): profile.js по-прежнему читает и пишет select.value.
-// Значение, выставленное из кода, и варианты, добавленные позже, подхватываются автоматически.
 const CHEVRON =
   '<svg class="select-chevron" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" ' +
   'stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
@@ -77,7 +74,6 @@ function enhance(select) {
       box.classList.add("open");
       btn.setAttribute("aria-expanded", "true");
       openBoxes.add(api);
-      // Если снизу мало места (над нижним меню), открываем вверх.
       const rect = btn.getBoundingClientRect();
       const need = Math.min(list.scrollHeight, 248) + 90;
       box.classList.toggle("up", window.innerHeight - rect.bottom < need && rect.top > need);
@@ -87,7 +83,6 @@ function enhance(select) {
 
   btn.addEventListener("click", () => (list.hidden ? api.open() : api.close()));
 
-  // Значение, выставленное кодом (select.value = ...), обновляет подпись.
   Object.defineProperty(select, "value", {
     configurable: true,
     get() {
@@ -98,7 +93,6 @@ function enhance(select) {
       syncLabel();
     },
   });
-  // Варианты, которые страница добавила позже.
   new MutationObserver(syncLabel).observe(select, { childList: true });
   select.addEventListener("change", syncLabel);
   syncLabel();

@@ -8,12 +8,11 @@ const nightsWord = (n) => plural(n, "nights");
 const kindLabel = (item) => (item.kind && has("hotelkind." + item.kind) ? t("hotelkind." + item.kind) : item.kind_label);
 
 let busy = false;
-let lastOrder = null; // только что оформленный заказ, чтобы показать его код
-let payMessage = ""; // сообщение под кнопкой оплаты (ошибка или подсказка)
+let lastOrder = null;
+let payMessage = "";
 
 export function initCart() {
   document.querySelector('nav button[data-page="cart"]').addEventListener("click", loadCart);
-  // Вернулись в мини-апп из чата, где могли добавить место в корзину.
   document.addEventListener("visibilitychange", () => {
     if (!document.hidden) loadCart();
   });
@@ -162,7 +161,6 @@ function renderSummary(cart) {
   return card;
 }
 
-// Оплата: сервер отвечает либо готовым заказом (демо), либо ссылкой на счёт Telegram (ЮKassa).
 async function startPayment(button) {
   if (busy) return;
   busy = true;
@@ -201,7 +199,6 @@ function openInvoice(url) {
   });
 }
 
-// Заказ создаёт бот после подтверждения платежа, поэтому ждём его появления в списке.
 async function waitForOrder(knownCode) {
   for (let i = 0; i < 10; i++) {
     const top = (await api("/api/orders")).orders[0];

@@ -1,4 +1,3 @@
-"""API настроек мини-аппа."""
 from typing import Literal
 
 from fastapi import APIRouter, Depends

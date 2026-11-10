@@ -1,6 +1,5 @@
 import { $, h, iconEl } from "./dom.js";
 
-// options: [[ключ, подпись, имя_иконки?], ...]
 export function renderChips(containerId, options, onOn) {
   const box = $(containerId);
   box.replaceChildren();

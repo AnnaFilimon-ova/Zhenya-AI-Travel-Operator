@@ -20,7 +20,6 @@ from app.profile import normalize_travel
 
 WEBAPP_DIR = Path(__file__).resolve().parents[2] / "webapp"
 
-# Ключи должны совпадать с webapp/js/constants.js
 TRAVEL_TYPES = {
     "beach", "city", "nature", "culture", "active", "relax",
     "gastro", "nightlife", "gothic", "aesthetic", "music", "shopping",
@@ -28,10 +27,9 @@ TRAVEL_TYPES = {
 FOOD_PREFS = {"vegan", "vegetarian", "meat", "fish", "seafood", "halal"}
 
 
-
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    await apply_schema()  # создаёт недостающие таблицы и колонки
+    await apply_schema()
     yield
 
 
@@ -43,7 +41,6 @@ app.include_router(settings_router)
 
 @app.middleware("http")
 async def revalidate_webapp(request: Request, call_next):
-    """Страница и её файлы всегда сверяются с сервером, чтобы не залипал старый интерфейс."""
     response = await call_next(request)
     if request.url.path == "/" or request.url.path.startswith("/static"):
         response.headers["Cache-Control"] = "no-cache"
