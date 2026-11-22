@@ -1,4 +1,3 @@
-from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Literal
 
@@ -11,36 +10,25 @@ from sqlalchemy.dialects.postgresql import insert
 
 from app.api.auth import current_user
 from app.api.cart_routes import router as cart_router
-from app.api.nearby_routes import router as nearby_router
-from app.api.settings_routes import router as settings_router
 from app.db import SessionLocal
-from app.db_init import apply_schema
 from app.models import User, UserPreferences
-from app.profile import normalize_travel
 
 WEBAPP_DIR = Path(__file__).resolve().parents[2] / "webapp"
 
+# Ключи должны совпадать с webapp/js/constants.js
 TRAVEL_TYPES = {
     "beach", "city", "nature", "culture", "active", "relax",
-    "gastro", "nightlife", "gothic", "aesthetic", "music", "shopping",
+    "gastro", "nightlife", "urbex", "aesthetic", "music", "shopping",
 }
 FOOD_PREFS = {"vegan", "vegetarian", "meat", "fish", "seafood", "halal"}
 
-
-@asynccontextmanager
-async def lifespan(_: FastAPI):
-    await apply_schema()
-    yield
-
-
-app = FastAPI(title="Zhenya API", lifespan=lifespan)
+app = FastAPI(title="Zhenya API")
 app.include_router(cart_router)
-app.include_router(nearby_router)
-app.include_router(settings_router)
 
 
 @app.middleware("http")
 async def revalidate_webapp(request: Request, call_next):
+    """Страница и её файлы всегда сверяются с сервером, чтобы не залипал старый интерфейс."""
     response = await call_next(request)
     if request.url.path == "/" or request.url.path.startswith("/static"):
         response.headers["Cache-Control"] = "no-cache"
@@ -58,7 +46,6 @@ class ProfileIn(BaseModel):
     travel_types: list[str] = Field(default_factory=list, max_length=20)
     food_prefs: list[str] = Field(default_factory=list, max_length=20)
     favorite_places: str = Field(default="", max_length=500)
-    home_city: str = Field(default="", max_length=60)
 
 
 async def get_or_create_user(session, tg_user: dict) -> User:
@@ -96,10 +83,9 @@ async def get_profile(tg_user: dict = Depends(current_user)) -> dict:
             "display_name": user.display_name or user.first_name or "",
             "gender": user.gender or "",
             "occupation": user.occupation or "",
-            "home_city": user.home_city or "",
             "with_pets": prefs.with_pets if prefs else False,
             "accessible": prefs.accessible if prefs else False,
-            "travel_types": normalize_travel(prefs.travel_types if prefs else []),
+            "travel_types": list(prefs.travel_types or []) if prefs else [],
             "food_prefs": list(prefs.food_prefs or []) if prefs else [],
             "favorite_places": (prefs.favorite_places or "") if prefs else "",
         }
@@ -109,7 +95,7 @@ async def get_profile(tg_user: dict = Depends(current_user)) -> dict:
 async def save_profile(
     body: ProfileIn, tg_user: dict = Depends(current_user)
 ) -> dict:
-    travel_types = sorted({t for t in normalize_travel(body.travel_types) if t in TRAVEL_TYPES})
+    travel_types = sorted({t for t in body.travel_types if t in TRAVEL_TYPES})
     food_prefs = sorted({f for f in body.food_prefs if f in FOOD_PREFS})
     favorite_places = body.favorite_places.strip()
 
@@ -118,7 +104,6 @@ async def save_profile(
         user.display_name = body.display_name.strip() or None
         user.gender = body.gender or None
         user.occupation = body.occupation or None
-        user.home_city = " ".join(body.home_city.split()) or None
 
         stmt = insert(UserPreferences).values(
             user_id=user.id,

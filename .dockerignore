@@ -1,0 +1,11 @@
+# Секреты и мусор не попадают в образ
+.git
+.venv
+**/.venv
+.env
+**/.env
+**/__pycache__
+**/*.pyc
+.idea
+.vscode
+node_modules

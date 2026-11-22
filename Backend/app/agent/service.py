@@ -434,11 +434,18 @@ LEAK_REFUSAL = "Служебные данные я не показываю. Мо
 def leaks_internal_data(answer: str) -> bool:
     if len({m.group(0).lower() for m in LEAK_FIELDS.finditer(answer)}) >= 2:
         return True
-    for secret in (settings.gemini_api_key, settings.bot_token, settings.avia_api_key, settings.groq_api_key, settings.payment_provider_token):
+
+    for secret in (
+        getattr(settings, "gemini_api_key", None),
+        getattr(settings, "bot_token", None),
+        getattr(settings, "avia_api_key", None),
+        getattr(settings, "groq_api_key", None),
+        getattr(settings, "payment_provider_token", None),
+    ):
         if secret and len(secret) >= 8 and secret in answer:
             return True
-    return False
 
+    return False
 
 def to_contents(history: list[dict]) -> list[types.Content]:
     return [

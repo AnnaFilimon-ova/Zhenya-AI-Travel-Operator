@@ -1,3 +1,4 @@
+
 import logging
 
 from aiogram import F, Router
@@ -40,7 +41,9 @@ async def handle_text(message: Message) -> None:
     if len(message.text) > MAX_USER_TEXT:
         await message.answer("Сообщение слишком длинное, напиши покороче.")
         return
+
     await message.bot.send_chat_action(message.chat.id, "typing")
+
     try:
         answer = await ask(message.from_user.id, message.text)
     except genai_errors.ClientError as error:
@@ -50,18 +53,23 @@ async def handle_text(message: Message) -> None:
                 "Сейчас у меня закончился лимит запросов к ИИ, попробуй чуть позже 🙏"
             )
         else:
-            await message.answer("Что-то пошло не так, попробуй ещё раз чуть позже 🙏")
+            await message.answer(
+                "Что-то пошло не так, попробуй ещё раз чуть позже 🙏"
+            )
         return
     except Exception:
         log.exception("Agent error")
-        await message.answer("Что-то пошло не так, попробуй ещё раз чуть позже 🙏")
+        await message.answer(
+            "Что-то пошло не так, попробуй ещё раз чуть позже 🙏"
+        )
         return
 
     await save_exchange(message.from_user.id, message.text, answer)
 
     # Кнопки «добавить в корзину» для мест, которые агент показал в этом ответе.
     keyboard = offered_keyboard(
-        pop_offered(message.from_user.id), pop_offered_tickets(message.from_user.id)
+        pop_offered(message.from_user.id)
+        + pop_offered_tickets(message.from_user.id)
     )
 
     parts = split_text(answer)
@@ -73,6 +81,7 @@ async def handle_text(message: Message) -> None:
             reply_markup=keyboard if is_last else None,
         )
 
+
 @router.message(F.voice)
 async def handle_voice(message: Message) -> None:
     if not settings.groq_api_key:
@@ -82,6 +91,7 @@ async def handle_voice(message: Message) -> None:
         return
 
     await message.bot.send_chat_action(message.chat.id, "typing")
+
     try:
         with tempfile.TemporaryDirectory() as temp_dir:
             input_path = Path(temp_dir) / "input.ogg"
@@ -110,8 +120,8 @@ async def handle_voice(message: Message) -> None:
             )
 
             keyboard = offered_keyboard(
-                pop_offered_tickets(message.from_user.id),
-                pop_offered_tickets(message.from_user.id),
+                pop_offered(message.from_user.id)
+                + pop_offered_tickets(message.from_user.id)
             )
 
             await message.answer(
@@ -129,8 +139,7 @@ async def handle_voice(message: Message) -> None:
                     ),
                 )
 
-            # Озвучиваем ответ. Для первой версии ограничиваем
-            # длину аудио, чтобы длинный ответ не создавал проблем.
+            # Озвучиваем ответ. Ограничиваем длину аудио.
             speech_text = answer[:2500]
             await synthesize_speech(
                 speech_text,
