@@ -7,10 +7,12 @@ class Settings(BaseSettings):
     bot_token: str = ""
     database_url: str
     webapp_url: str = ""
-    gemini_api_key: str = ""
     payment_provider_token: str = ""
     dev_user_id: int | None = None
-    gemini_model: str = "gemini-3.5-flash"
+    groq_api_key: str = ""
+    openrouter_api_key: str = ""
+    avia_api_key: str = ""
+    openrouter_model: str = "openrouter/free"
 
     # .env ищем рядом с Backend и в корне репозитория; пустые значения считаем незаданными.
     model_config = SettingsConfigDict(

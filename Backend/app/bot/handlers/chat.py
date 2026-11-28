@@ -15,7 +15,6 @@ from pathlib import Path
 
 from aiogram.types import FSInputFile
 from app.agent.voice import transcribe_audio, synthesize_speech
-from app.config import settings
 
 MAX_USER_TEXT = 2000
 router = Router()
@@ -83,33 +82,29 @@ async def handle_text(message: Message) -> None:
 
 
 @router.message(F.voice)
-async def handle_voice(message: Message) -> None:
-    if not settings.groq_api_key:
-        await message.answer(
-            "Голосовой режим пока не настроен: добавь GROQ_API_KEY в .env."
-        )
-        return
 
+async def handle_voice(message: Message) -> None:
     await message.bot.send_chat_action(message.chat.id, "typing")
 
     try:
         with tempfile.TemporaryDirectory() as temp_dir:
             input_path = Path(temp_dir) / "input.ogg"
-            output_path = Path(temp_dir) / "zhenya.mp3"
 
             await message.bot.download(
                 message.voice.file_id,
                 destination=input_path,
             )
 
+            # Незаметно распознаём голосовое сообщение.
             transcript = await transcribe_audio(str(input_path))
 
             if not transcript:
                 await message.answer(
-                    "Я не смогла разобрать речь. Попробуй записать ещё раз."
+                    "Не получилось разобрать речь. Попробуй записать ещё раз."
                 )
                 return
 
+            # Передаём распознанный текст Жене.
             await message.bot.send_chat_action(message.chat.id, "typing")
             answer = await ask(message.from_user.id, transcript)
 
@@ -124,11 +119,7 @@ async def handle_voice(message: Message) -> None:
                 + pop_offered_tickets(message.from_user.id)
             )
 
-            await message.answer(
-                f"🎧 Я услышала: {transcript}",
-                parse_mode=None,
-            )
-
+            # Отправляем только ответ Жени обычным текстом.
             parts = split_text(answer)
             for index, part in enumerate(parts):
                 await message.answer(
@@ -138,18 +129,6 @@ async def handle_voice(message: Message) -> None:
                         keyboard if index == len(parts) - 1 else None
                     ),
                 )
-
-            # Озвучиваем ответ. Ограничиваем длину аудио.
-            speech_text = answer[:2500]
-            await synthesize_speech(
-                speech_text,
-                str(output_path),
-            )
-
-            await message.answer_audio(
-                audio=FSInputFile(output_path),
-                title="Ответ Жени",
-            )
 
     except Exception:
         log.exception("Voice processing error")

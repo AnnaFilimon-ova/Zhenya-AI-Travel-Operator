@@ -19,40 +19,70 @@ router = Router()
 
 
 def offered_keyboard(hotels: list[dict]) -> InlineKeyboardMarkup | None:
-    """Клавиатура: по кнопке на каждое предложенное место и кнопка корзины."""
+    """Клавиатура для предложенных отелей и авиабилетов."""
+
     if not hotels:
         return None
 
     rows = []
 
     for hotel in hotels:
+        # Авиабилеты определяем по наличию токена предложения.
+        if "token" in hotel:
+            origin = hotel.get("origin", "?")
+            destination = hotel.get("destination", "?")
+            price = hotel.get("price_rub", 0)
+            depart_at = hotel.get("depart_at", "")
+
+            title = f"✈️ {origin} → {destination}"
+
+            if depart_at:
+                title += f" · {depart_at}"
+
+            if price:
+                title += f" · ≈{price} ₽"
+
+            # Для билетов открываем страницу поиска Aviasales.
+            url = hotel.get("url", "")
+
+            if url.startswith("https://"):
+                rows.append([
+                    InlineKeyboardButton(
+                        text=title[:64],
+                        url=url,
+                    )
+                ])
+
+            continue
+
+        # Для отелей сохраняем прежнее поведение.
         name = hotel["name"]
+
         if len(name) > 28:
             name = name[:27] + "…"
 
         title = f"➕ {name} · ≈{hotel['price']} ₽"
-        rows.append(
-            [
-                InlineKeyboardButton(
-                    text=title,
-                    callback_data=f"add:{hotel['id']}",
-                )
-            ]
-        )
+
+        rows.append([
+            InlineKeyboardButton(
+                text=title,
+                callback_data=f"add:{hotel['id']}",
+            )
+        ])
 
     # Telegram принимает для мини-аппа только https-адреса.
     if settings.webapp_url.startswith("https://"):
-        rows.append(
-            [
-                InlineKeyboardButton(
-                    text="🛒 Открыть корзину",
-                    web_app=WebAppInfo(url=settings.webapp_url),
-                )
-            ]
-        )
+        rows.append([
+            InlineKeyboardButton(
+                text="🛒 Открыть корзину",
+                web_app=WebAppInfo(url=settings.webapp_url),
+            )
+        ])
+
+    if not rows:
+        return None
 
     return InlineKeyboardMarkup(inline_keyboard=rows)
-
 
 @router.callback_query(F.data.startswith("add:"))
 async def on_add(callback: CallbackQuery) -> None:
